@@ -4,6 +4,7 @@ A browser accessibility plugin that helps users customize website readability an
 **Features**
 
 **Text & Reading Adjustments**
+
 1.Increase or decrease text size
 
 2.Adjust line height
