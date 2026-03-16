@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Barrier Free Web",
+  "description": "A browser accessibility plugin that helps users customize website readability and usability by adjusting text size, spacing, contrast, fonts, cursor size, and motion settings to create a more comfortable browsing experience.",
+  "version": "1.0",
+
+  "permissions": ["activeTab", "scripting"],
+
+  "action": {
+    "default_popup": "popup.html"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}
