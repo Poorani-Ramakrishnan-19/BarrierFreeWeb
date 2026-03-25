@@ -64,6 +64,33 @@ function getActiveRange() {
     return baLastSelectionRange ? baLastSelectionRange.cloneRange() : null;
 }
 
+let linksHighlighted = false;
+
+function toggleLinkHighlights(color) {
+    if (linksHighlighted) {
+        clearLinkHighlights();
+        return false;
+    } else {
+        const links = document.querySelectorAll('a');
+        links.forEach(link => {
+            if (isElementInWidget(link)) return;
+            link.classList.add('ba-link-highlight');
+            link.style.backgroundColor = color;
+        });
+        linksHighlighted = true;
+        return true;
+    }
+}
+
+function clearLinkHighlights() {
+    const links = document.querySelectorAll('a.ba-link-highlight');
+    links.forEach(link => {
+        link.classList.remove('ba-link-highlight');
+        link.style.backgroundColor = '';
+    });
+    linksHighlighted = false;
+}
+
 function clearHighlights() {
     const highlights = document.querySelectorAll('span.ba-text-highlight');
     highlights.forEach(highlight => {
@@ -136,6 +163,7 @@ function applyTextSettings(settings) {
             resetParentSafeStyles(el);
         });
         clearHighlights();
+        clearLinkHighlights();
         setCursor(null);
         return;
     }

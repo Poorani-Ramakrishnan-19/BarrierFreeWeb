@@ -148,6 +148,10 @@ function createFloatingAccessWidget() {
         #ba-widget-panel button.secondary:hover {
             background: #f8fafc;
         }
+        .ba-link-highlight {
+            border-radius: 2px;
+            transition: background-color 0.2s;
+        }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
     `;
     document.head.appendChild(style);
@@ -197,12 +201,13 @@ function createFloatingAccessWidget() {
         </div>
         <div class="ba-group">
             <h4>Highlight</h4>
+            <div style="display:flex; gap:6px; margin-bottom:8px;">
+                <button id="ba-highlight-links" style="flex:1;">Highlight Links</button>
+            </div>
             <label for="ba-highlightColor">Highlight Color</label>
             <input id="ba-highlightColor" type="color" value="#fff176">
-            <div style="display:flex; gap:6px; margin-top:8px;">
-                <button id="ba-highlight" style="flex:1;">Highlight Selection</button>
-                <button id="ba-clearHighlights" class="secondary" style="flex:1;">Clear Highlights</button>
-            </div>
+            <button id="ba-highlight" style="width:100%; margin-top:8px;">Highlight Selection</button>
+            <button id="ba-clearHighlights" class="secondary" style="width:100%; margin-top:4px;">Clear Highlights</button>
         </div>
         <button id="ba-reset" class="secondary" style="width:100%; margin-top:4px;">Reset All</button>
     `;
@@ -322,9 +327,15 @@ function createFloatingAccessWidget() {
         highlightColor.value = '#fff176';
         updateValues();
         applyTextSettings({ reset: true });
+        document.getElementById('ba-highlight-links').textContent = 'Highlight Links';
     });
     document.getElementById('ba-highlight').addEventListener('click', () => {
         highlightSelection(highlightColor.value || '#fff176');
+    });
+    document.getElementById('ba-highlight-links').addEventListener('click', () => {
+        const isHighlighted = toggleLinkHighlights(highlightColor.value || '#fff176');
+        const button = document.getElementById('ba-highlight-links');
+        button.textContent = isHighlighted ? 'Unhighlight Links' : 'Highlight Links';
     });
     document.getElementById('ba-clearHighlights').addEventListener('click', clearHighlights);
 
