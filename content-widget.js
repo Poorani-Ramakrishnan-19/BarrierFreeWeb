@@ -152,6 +152,26 @@ function createFloatingAccessWidget() {
             border-radius: 2px;
             transition: background-color 0.2s;
         }
+        .ba-toggle-btn {
+            width: 100%;
+            padding: 6px 8px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            background: #f4f7fa;
+            color: #22223b;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .ba-toggle-btn:hover {
+            background: #e7eaf6;
+            border-color: #5a7cff;
+        }
+        .ba-toggle-btn.active {
+            background: #5a7cff;
+            color: #fff;
+            border-color: #5a7cff;
+        }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
     `;
     document.head.appendChild(style);
@@ -208,6 +228,30 @@ function createFloatingAccessWidget() {
             <input id="ba-highlightColor" type="color" value="#fff176">
             <button id="ba-highlight" style="width:100%; margin-top:8px;">Highlight Selection</button>
             <button id="ba-clearHighlights" class="secondary" style="width:100%; margin-top:4px;">Clear Highlights</button>
+        </div>
+        <div class="ba-group">
+            <h4>Contrast</h4>
+            <div class="ba-setting-grid">
+                <div class="ba-setting-item">
+                    <button id="ba-invert-colors" class="ba-toggle-btn">Invert Colors</button>
+                </div>
+                <div class="ba-setting-item">
+                    <button id="ba-dark-contrast" class="ba-toggle-btn">Dark Contrast</button>
+                </div>
+                <div class="ba-setting-item">
+                    <button id="ba-light-contrast" class="ba-toggle-btn">Light Contrast</button>
+                </div>
+                <div class="ba-setting-item">
+                    <button id="ba-high-contrast" class="ba-toggle-btn">High Contrast</button>
+                </div>
+                <div class="ba-setting-item">
+                    <label for="ba-custom-contrast">Custom Contrast <strong><span id="ba-custom-contrast-value">100</span>%</strong></label>
+                    <input type="range" id="ba-custom-contrast" min="50" max="200" value="100" step="5">
+                </div>
+                <div class="ba-setting-item">
+                    <button id="ba-desaturate" class="ba-toggle-btn">Desaturate</button>
+                </div>
+            </div>
         </div>
         <button id="ba-reset" class="secondary" style="width:100%; margin-top:4px;">Reset All</button>
     `;
@@ -325,9 +369,14 @@ function createFloatingAccessWidget() {
         fontFamily.value = '';
         cursorSize.value = 'default';
         highlightColor.value = '#fff176';
+        customContrast.value = 100;
+        customContrastValue.textContent = '100';
         updateValues();
         applyTextSettings({ reset: true });
         document.getElementById('ba-highlight-links').textContent = 'Highlight Links';
+        
+        // Reset contrast buttons
+        document.querySelectorAll('.ba-toggle-btn').forEach(btn => btn.classList.remove('active'));
     });
     document.getElementById('ba-highlight').addEventListener('click', () => {
         highlightSelection(highlightColor.value || '#fff176');
@@ -338,6 +387,45 @@ function createFloatingAccessWidget() {
         button.textContent = isHighlighted ? 'Unhighlight Links' : 'Highlight Links';
     });
     document.getElementById('ba-clearHighlights').addEventListener('click', clearHighlights);
+
+    // Contrast effect buttons
+    document.getElementById('ba-invert-colors').addEventListener('click', function() {
+        const isActive = this.classList.toggle('active');
+        applyContrastEffect('invert', isActive);
+    });
+    
+    document.getElementById('ba-dark-contrast').addEventListener('click', function() {
+        const isActive = this.classList.toggle('active');
+        applyContrastEffect('dark', isActive);
+    });
+    
+    document.getElementById('ba-light-contrast').addEventListener('click', function() {
+        const isActive = this.classList.toggle('active');
+        applyContrastEffect('light', isActive);
+    });
+    
+    document.getElementById('ba-high-contrast').addEventListener('click', function() {
+        const isActive = this.classList.toggle('active');
+        applyContrastEffect('high', isActive);
+    });
+    
+    document.getElementById('ba-desaturate').addEventListener('click', function() {
+        const isActive = this.classList.toggle('active');
+        applyContrastEffect('desaturate', isActive);
+    });
+
+    // Custom contrast slider
+    const customContrast = document.getElementById('ba-custom-contrast');
+    const customContrastValue = document.getElementById('ba-custom-contrast-value');
+    
+    customContrast.addEventListener('input', function() {
+        customContrastValue.textContent = this.value;
+        setCustomContrast(parseInt(this.value));
+        if (!contrastEffects.custom) {
+            contrastEffects.custom = true;
+            applyContrastEffect('custom', true);
+        }
+    });
 
     document.addEventListener('click', (event) => {
         if (!panel.contains(event.target) && !icon.contains(event.target)) {

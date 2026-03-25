@@ -66,6 +66,68 @@ function getActiveRange() {
 
 let linksHighlighted = false;
 
+let contrastEffects = {
+    invert: false,
+    dark: false,
+    light: false,
+    high: false,
+    custom: false,
+    desaturate: false
+};
+
+let customContrastValue = 100;
+
+function applyContrastEffect(effect, enable) {
+    let filter = '';
+    
+    if (enable) {
+        contrastEffects[effect] = true;
+    } else {
+        contrastEffects[effect] = false;
+    }
+    
+    // Build filter string based on active effects
+    let filters = [];
+    
+    if (contrastEffects.invert) filters.push('invert(100%)');
+    if (contrastEffects.dark) filters.push('brightness(0.5) contrast(1.5)');
+    if (contrastEffects.light) filters.push('brightness(1.5) contrast(1.5)');
+    if (contrastEffects.high) filters.push('contrast(2)');
+    if (contrastEffects.custom) filters.push(`contrast(${customContrastValue}%)`);
+    if (contrastEffects.desaturate) filters.push('grayscale(100%)');
+    
+    filter = filters.join(' ');
+    
+    // Apply to body, excluding widget elements
+    document.body.style.filter = filter;
+    
+    // Make sure widget is not affected
+    const widget = document.getElementById('ba-access-widget');
+    const panel = document.getElementById('ba-widget-panel');
+    if (widget) widget.style.filter = 'none';
+    if (panel) panel.style.filter = 'none';
+}
+
+function setCustomContrast(value) {
+    customContrastValue = value;
+    if (contrastEffects.custom) {
+        applyContrastEffect('custom', true);
+    }
+}
+
+function clearAllContrastEffects() {
+    contrastEffects = {
+        invert: false,
+        dark: false,
+        light: false,
+        high: false,
+        custom: false,
+        desaturate: false
+    };
+    customContrastValue = 100;
+    document.body.style.filter = '';
+}
+
 function toggleLinkHighlights(color) {
     if (linksHighlighted) {
         clearLinkHighlights();
@@ -164,6 +226,7 @@ function applyTextSettings(settings) {
         });
         clearHighlights();
         clearLinkHighlights();
+        clearAllContrastEffects();
         setCursor(null);
         return;
     }
