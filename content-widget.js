@@ -31,7 +31,6 @@ function createFloatingAccessWidget() {
         #ba-access-widget:hover #ba-access-widget-img {
             transform: scale(1.35);
         }
-        #ba-access-widget svg { width: 26px; height: 26px; fill: white; }
 
         #ba-widget-panel {
             position: fixed;
@@ -49,7 +48,14 @@ function createFloatingAccessWidget() {
             color: #1f2a44;
             overflow: hidden;
         }
-        #ba-widget-panel h3 { margin: 0 0 10px; font-size: 1rem; font-weight: 700; color: #1f2a44; text-transform: uppercase; letter-spacing: 0.06em; }
+        #ba-widget-panel h3 {
+            margin: 0 0 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1f2a44;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
         #ba-widget-panel .ba-group {
             margin-bottom: 10px;
             background: #f6f8fd;
@@ -68,32 +74,14 @@ function createFloatingAccessWidget() {
             grid-template-columns: 1fr 1fr;
             gap: 8px;
         }
-        #ba-widget-panel .ba-setting-item { display: flex; flex-direction: column; gap: 4px; }
-        #ba-widget-panel .ba-setting-item label { font-size: 0.78rem; color: #59687f; }
-        #ba-widget-panel .ba-toggle-slider {
-            width: 100%;
-            padding: 8px;
-            border: none;
-            border-radius: 8px;
-            background: #e7eaf6;
-            color: #3a5ad7;
-            font-size: 0.95em;
-            font-weight: 500;
-            margin-bottom: 2px;
-            cursor: pointer;
-            transition: background 0.2s, color 0.2s;
+        #ba-widget-panel .ba-setting-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
-        #ba-widget-panel .ba-toggle-slider:hover, #ba-widget-panel .ba-toggle-slider.active {
-            background: #5a7cff;
-            color: #fff;
-        }
-        #ba-widget-panel .ba-slider-container, #ba-widget-panel .ba-dropdown-container {
-            padding: 6px 0 0 0;
-            display: none;
-            animation: fadeIn 0.2s;
-        }
-        #ba-widget-panel .ba-slider-container.active, #ba-widget-panel .ba-dropdown-container.active {
-            display: block;
+        #ba-widget-panel .ba-setting-item label {
+            font-size: 0.78rem;
+            color: #59687f;
         }
         #ba-widget-panel input[type="range"] {
             width: 100%;
@@ -122,7 +110,12 @@ function createFloatingAccessWidget() {
             margin-bottom: 8px;
             padding: 2px;
         }
-        #ba-widget-panel label { display: block; font-size: 0.9em; color: #4a4a6a; margin-bottom: 4px; }
+        #ba-widget-panel label {
+            display: block;
+            font-size: 0.9em;
+            color: #4a4a6a;
+            margin-bottom: 4px;
+        }
         #ba-widget-panel button {
             width: 100%;
             padding: 8px;
@@ -152,27 +145,9 @@ function createFloatingAccessWidget() {
             border-radius: 2px;
             transition: background-color 0.2s;
         }
-        .ba-toggle-btn {
-            width: 100%;
-            padding: 6px 8px;
-            border-radius: 6px;
-            border: 1px solid #cbd5e1;
-            background: #f4f7fa;
-            color: #22223b;
-            font-size: 0.85em;
-            cursor: pointer;
-            transition: background 0.2s, border-color 0.2s;
-        }
-        .ba-toggle-btn:hover {
-            background: #e7eaf6;
-            border-color: #5a7cff;
-        }
         .ba-toggle-btn.active {
-            background: #5a7cff;
-            color: #fff;
-            border-color: #5a7cff;
+            box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4);
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
     `;
     document.head.appendChild(style);
 
@@ -206,6 +181,7 @@ function createFloatingAccessWidget() {
                 </div>
             </div>
         </div>
+
         <div class="ba-group">
             <h4>Typography</h4>
             <div class="ba-setting-grid">
@@ -219,6 +195,7 @@ function createFloatingAccessWidget() {
                 </div>
             </div>
         </div>
+
         <div class="ba-group">
             <h4>Highlight</h4>
             <div style="display:flex; gap:6px; margin-bottom:8px;">
@@ -229,30 +206,22 @@ function createFloatingAccessWidget() {
             <button id="ba-highlight" style="width:100%; margin-top:8px;">Highlight Selection</button>
             <button id="ba-clearHighlights" class="secondary" style="width:100%; margin-top:4px;">Clear Highlights</button>
         </div>
+
         <div class="ba-group">
             <h4>Contrast</h4>
             <div class="ba-setting-grid">
-                <div class="ba-setting-item">
-                    <button id="ba-invert-colors" class="ba-toggle-btn">Invert Colors</button>
-                </div>
-                <div class="ba-setting-item">
-                    <button id="ba-dark-contrast" class="ba-toggle-btn">Dark Contrast</button>
-                </div>
-                <div class="ba-setting-item">
-                    <button id="ba-light-contrast" class="ba-toggle-btn">Light Contrast</button>
-                </div>
-                <div class="ba-setting-item">
-                    <button id="ba-high-contrast" class="ba-toggle-btn">High Contrast</button>
-                </div>
+                <div class="ba-setting-item"><button id="ba-invert-colors" class="ba-toggle-btn">Invert Colors</button></div>
+                <div class="ba-setting-item"><button id="ba-dark-contrast" class="ba-toggle-btn">Dark Contrast</button></div>
+                <div class="ba-setting-item"><button id="ba-light-contrast" class="ba-toggle-btn">Light Contrast</button></div>
+                <div class="ba-setting-item"><button id="ba-high-contrast" class="ba-toggle-btn">High Contrast</button></div>
                 <div class="ba-setting-item">
                     <label for="ba-custom-contrast">Custom Contrast <strong><span id="ba-custom-contrast-value">100</span>%</strong></label>
                     <input type="range" id="ba-custom-contrast" min="50" max="200" value="100" step="5">
                 </div>
-                <div class="ba-setting-item">
-                    <button id="ba-desaturate" class="ba-toggle-btn">Desaturate</button>
-                </div>
+                <div class="ba-setting-item"><button id="ba-desaturate" class="ba-toggle-btn">Desaturate</button></div>
             </div>
         </div>
+
         <button id="ba-reset" class="secondary" style="width:100%; margin-top:4px;">Reset All</button>
     `;
 
@@ -262,14 +231,79 @@ function createFloatingAccessWidget() {
     let dragOffsetY = 0;
 
     function updateWidgetPosition(x, y) {
-        icon.style.left = x + 'px';
-        icon.style.top = y + 'px';
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const iconWidth = icon.offsetWidth || 50;
+        const iconHeight = icon.offsetHeight || 50;
+        const defaultPanelWidth = 320;
+        const defaultPanelHeight = 400;
+
+        let panelWidth = panel.offsetWidth;
+        let panelHeight = panel.offsetHeight;
+
+        if ((panelWidth === 0 || panelHeight === 0) && getComputedStyle(panel).display === 'none') {
+            panel.style.position = 'absolute';
+            panel.style.left = '-9999px';
+            panel.style.display = 'block';
+            panelWidth = panel.offsetWidth;
+            panelHeight = panel.offsetHeight;
+            panel.style.display = 'none';
+            panel.style.position = 'fixed';
+            panel.style.left = '';
+        }
+
+        if (!panelWidth) panelWidth = defaultPanelWidth;
+        if (!panelHeight) panelHeight = defaultPanelHeight;
+
+        const clampedX = Math.max(0, Math.min(x, viewportWidth - iconWidth));
+        const clampedY = Math.max(0, Math.min(y, viewportHeight - iconHeight));
+
+        icon.style.left = clampedX + 'px';
+        icon.style.top = clampedY + 'px';
         icon.style.right = 'auto';
         icon.style.bottom = 'auto';
-        panel.style.left = x + 'px';
+
+        const positions = [
+            { left: clampedX, top: clampedY - panelHeight - 10 },
+            { left: clampedX, top: clampedY + iconHeight + 10 },
+            { left: clampedX - panelWidth + iconWidth, top: clampedY - panelHeight - 10 },
+            { left: clampedX - panelWidth + iconWidth, top: clampedY + iconHeight + 10 }
+        ];
+
+        let bestPosition = positions[0];
+        let bestScore = Infinity;
+
+        for (const pos of positions) {
+            const panelLeft = pos.left;
+            const panelTop = pos.top;
+            const panelRight = panelLeft + panelWidth;
+            const panelBottom = panelTop + panelHeight;
+
+            const offLeft = Math.max(0, -panelLeft);
+            const offRight = Math.max(0, panelRight - viewportWidth);
+            const offTop = Math.max(0, -panelTop);
+            const offBottom = Math.max(0, panelBottom - viewportHeight);
+
+            const overflow = offLeft + offRight + offTop + offBottom;
+
+            if (overflow === 0) {
+                bestPosition = { left: panelLeft, top: panelTop };
+                break;
+            }
+
+            if (overflow < bestScore) {
+                bestScore = overflow;
+                bestPosition = { left: panelLeft, top: panelTop };
+            }
+        }
+
+        const finalLeft = Math.max(0, Math.min(bestPosition.left, viewportWidth - panelWidth));
+        const finalTop = Math.max(0, Math.min(bestPosition.top, viewportHeight - panelHeight));
+
+        panel.style.left = finalLeft + 'px';
         panel.style.right = 'auto';
         panel.style.bottom = 'auto';
-        panel.style.top = (y - panel.offsetHeight - 10) + 'px';
+        panel.style.top = finalTop + 'px';
     }
 
     icon.addEventListener('mousedown', (event) => {
@@ -317,28 +351,6 @@ function createFloatingAccessWidget() {
     const lineHeightValue = document.getElementById('ba-lineHeight-value');
     const spacingValue = document.getElementById('ba-spacing-value');
 
-    const toggleButtons = panel.querySelectorAll('.ba-toggle-slider');
-    toggleButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const target = this.getAttribute('data-target');
-            const containerId = `ba-${target}-container`;
-            const containers = panel.querySelectorAll('.ba-slider-container, .ba-dropdown-container');
-
-            containers.forEach(c => {
-                if (c.id !== containerId) c.classList.remove('active');
-            });
-            toggleButtons.forEach(b => {
-                if (b !== this) b.classList.remove('active');
-            });
-
-            const container = document.getElementById(containerId);
-            if (container) {
-                container.classList.toggle('active');
-                this.classList.toggle('active');
-            }
-        });
-    });
-
     function updateValues() {
         fontSizeValue.textContent = fontSize.value;
         lineHeightValue.textContent = lineHeight.value;
@@ -374,53 +386,52 @@ function createFloatingAccessWidget() {
         updateValues();
         applyTextSettings({ reset: true });
         document.getElementById('ba-highlight-links').textContent = 'Highlight Links';
-        
-        // Reset contrast buttons
         document.querySelectorAll('.ba-toggle-btn').forEach(btn => btn.classList.remove('active'));
     });
+
     document.getElementById('ba-highlight').addEventListener('click', () => {
         highlightSelection(highlightColor.value || '#fff176');
     });
+
     document.getElementById('ba-highlight-links').addEventListener('click', () => {
         const isHighlighted = toggleLinkHighlights(highlightColor.value || '#fff176');
         const button = document.getElementById('ba-highlight-links');
         button.textContent = isHighlighted ? 'Unhighlight Links' : 'Highlight Links';
     });
+
     document.getElementById('ba-clearHighlights').addEventListener('click', clearHighlights);
 
-    // Contrast effect buttons
     document.getElementById('ba-invert-colors').addEventListener('click', function() {
         const isActive = this.classList.toggle('active');
         applyContrastEffect('invert', isActive);
     });
-    
+
     document.getElementById('ba-dark-contrast').addEventListener('click', function() {
         const isActive = this.classList.toggle('active');
         applyContrastEffect('dark', isActive);
     });
-    
+
     document.getElementById('ba-light-contrast').addEventListener('click', function() {
         const isActive = this.classList.toggle('active');
         applyContrastEffect('light', isActive);
     });
-    
+
     document.getElementById('ba-high-contrast').addEventListener('click', function() {
         const isActive = this.classList.toggle('active');
         applyContrastEffect('high', isActive);
     });
-    
+
     document.getElementById('ba-desaturate').addEventListener('click', function() {
         const isActive = this.classList.toggle('active');
         applyContrastEffect('desaturate', isActive);
     });
 
-    // Custom contrast slider
     const customContrast = document.getElementById('ba-custom-contrast');
     const customContrastValue = document.getElementById('ba-custom-contrast-value');
-    
+
     customContrast.addEventListener('input', function() {
         customContrastValue.textContent = this.value;
-        setCustomContrast(parseInt(this.value));
+        setCustomContrast(parseInt(this.value, 10));
         if (!contrastEffects.custom) {
             contrastEffects.custom = true;
             applyContrastEffect('custom', true);
@@ -430,8 +441,6 @@ function createFloatingAccessWidget() {
     document.addEventListener('click', (event) => {
         if (!panel.contains(event.target) && !icon.contains(event.target)) {
             panel.style.display = 'none';
-            toggleButtons.forEach(btn => btn.classList.remove('active'));
-            panel.querySelectorAll('.ba-slider-container, .ba-dropdown-container').forEach(c => c.classList.remove('active'));
         }
     });
 }
