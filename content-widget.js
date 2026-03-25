@@ -22,11 +22,14 @@ function createFloatingAccessWidget() {
             justify-content: center;
             z-index: 2147483647;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         #ba-access-widget:hover {
-            box-shadow: 0 6px 20px rgba(60, 60, 90, 0.35);
-            transform: translateY(-2px);
+            box-shadow: 0 8px 26px rgba(60, 60, 90, 0.45);
+            transform: translateY(-2px) scale(1.28);
+        }
+        #ba-access-widget:hover #ba-access-widget-img {
+            transform: scale(1.35);
         }
         #ba-access-widget svg { width: 26px; height: 26px; fill: white; }
 
@@ -34,18 +37,39 @@ function createFloatingAccessWidget() {
             position: fixed;
             bottom: 80px;
             right: 20px;
-            width: 280px;
-            background: linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%);
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(60, 60, 90, 0.15);
+            width: 320px;
+            background: #ffffff;
+            border: 1px solid #dbe2ef;
+            border-radius: 14px;
+            box-shadow: 0 18px 40px rgba(20, 24, 51, 0.18);
             z-index: 2147483647;
-            padding: 16px;
+            padding: 14px;
             display: none;
             font-family: 'Segoe UI', Arial, sans-serif;
-            color: #22223b;
+            color: #1f2a44;
+            overflow: hidden;
         }
-        #ba-widget-panel h3 { margin: 0 0 12px; font-size: 1.1em; font-weight: 600; color: #3a3a5a; }
-        #ba-widget-panel .ba-setting-group { margin-bottom: 8px; }
+        #ba-widget-panel h3 { margin: 0 0 10px; font-size: 1rem; font-weight: 700; color: #1f2a44; text-transform: uppercase; letter-spacing: 0.06em; }
+        #ba-widget-panel .ba-group {
+            margin-bottom: 10px;
+            background: #f6f8fd;
+            border: 1px solid #e3e9f5;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        #ba-widget-panel .ba-group h4 {
+            margin: 0 0 8px;
+            font-size: 0.86rem;
+            font-weight: 650;
+            color: #3a4b72;
+        }
+        #ba-widget-panel .ba-setting-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        #ba-widget-panel .ba-setting-item { display: flex; flex-direction: column; gap: 4px; }
+        #ba-widget-panel .ba-setting-item label { font-size: 0.78rem; color: #59687f; }
         #ba-widget-panel .ba-toggle-slider {
             width: 100%;
             padding: 8px;
@@ -133,7 +157,7 @@ function createFloatingAccessWidget() {
     icon.className = 'ba-widget-element';
     icon.title = 'Barrier Free Web';
     icon.innerHTML = `
-        <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M32 2C15.4 2 2 15.4 2 32s13.4 30 30 30 30-13.4 30-30S48.6 2 32 2zm0 8c4.4 0 8 3.6 8 8 0 2.5-1.2 4.7-3.1 6.1L42 34v6h-4v14h-4V40h-4v-6l5.1-3.9C29.7 31.3 28.5 29.1 28.5 26.5c0-4.4 3.6-8 8-8z"/></svg>
+        <img id="ba-access-widget-img" src="${chrome.runtime.getURL('BarrierFreeWeb_Icon.png')}" alt="BarrierFreeWeb" style="width:100%; height:100%; object-fit:contain; border-radius:50%; transition: transform 0.2s ease;" />
     `;
 
     const panel = document.createElement('div');
@@ -141,49 +165,46 @@ function createFloatingAccessWidget() {
     panel.className = 'ba-widget-element';
     panel.innerHTML = `
         <h3>Accessibility Controls</h3>
-        <div class="ba-setting-group">
-            <button class="ba-toggle-slider" data-target="fontSize">Font Size</button>
-            <div class="ba-slider-container" id="ba-fontSize-container">
-                <label>Size: <span id="ba-fontSize-value">16</span>px</label>
-                <input type="range" id="ba-fontSize" min="12" max="40" value="16">
+        <div class="ba-group">
+            <h4>Text Dimensions</h4>
+            <div class="ba-setting-grid">
+                <div class="ba-setting-item">
+                    <label for="ba-fontSize">Font Size <strong><span id="ba-fontSize-value">16</span>px</strong></label>
+                    <input type="range" id="ba-fontSize" min="12" max="40" value="16">
+                </div>
+                <div class="ba-setting-item">
+                    <label for="ba-lineHeight">Line Height <strong><span id="ba-lineHeight-value">1.5</span></strong></label>
+                    <input type="range" id="ba-lineHeight" min="1" max="3" step="0.1" value="1.5">
+                </div>
+                <div class="ba-setting-item">
+                    <label for="ba-spacing">Letter Spacing <strong><span id="ba-spacing-value">0</span>px</strong></label>
+                    <input type="range" id="ba-spacing" min="0" max="5" step="0.1" value="0">
+                </div>
             </div>
         </div>
-        <div class="ba-setting-group">
-            <button class="ba-toggle-slider" data-target="lineHeight">Line Height</button>
-            <div class="ba-slider-container" id="ba-lineHeight-container">
-                <label>Height: <span id="ba-lineHeight-value">1.5</span></label>
-                <input type="range" id="ba-lineHeight" min="1" max="3" step="0.1" value="1.5">
+        <div class="ba-group">
+            <h4>Typography</h4>
+            <div class="ba-setting-grid">
+                <div class="ba-setting-item">
+                    <label for="ba-fontFamily">Font Family</label>
+                    <select id="ba-fontFamily"><option value="">Default</option><option value="Arial">Arial</option><option value="Verdana">Verdana</option><option value="Georgia">Georgia</option><option value="Times New Roman">Times</option><option value="OpenDyslexic">OpenDyslexic</option></select>
+                </div>
+                <div class="ba-setting-item">
+                    <label for="ba-cursorSize">Cursor Size</label>
+                    <select id="ba-cursorSize"><option value="default">Default</option><option value="large">Large</option><option value="xlarge">Extra Large</option></select>
+                </div>
             </div>
         </div>
-        <div class="ba-setting-group">
-            <button class="ba-toggle-slider" data-target="spacing">Letter Spacing</button>
-            <div class="ba-slider-container" id="ba-spacing-container">
-                <label>Spacing: <span id="ba-spacing-value">0</span>px</label>
-                <input type="range" id="ba-spacing" min="0" max="5" step="0.1" value="0">
+        <div class="ba-group">
+            <h4>Highlight</h4>
+            <label for="ba-highlightColor">Highlight Color</label>
+            <input id="ba-highlightColor" type="color" value="#fff176">
+            <div style="display:flex; gap:6px; margin-top:8px;">
+                <button id="ba-highlight" style="flex:1;">Highlight Selection</button>
+                <button id="ba-clearHighlights" class="secondary" style="flex:1;">Clear Highlights</button>
             </div>
         </div>
-        <div class="ba-setting-group">
-            <button class="ba-toggle-slider" data-target="fontFamily">Font</button>
-            <div class="ba-dropdown-container" id="ba-fontFamily-container">
-                <select id="ba-fontFamily"><option value="">Default (No Change)</option><option value="Arial">Arial</option><option value="Verdana">Verdana</option><option value="Georgia">Georgia</option><option value="Times New Roman">Times</option><option value="OpenDyslexic">OpenDyslexic</option></select>
-            </div>
-        </div>
-        <div class="ba-setting-group">
-            <button class="ba-toggle-slider" data-target="cursorSize">Cursor Size</button>
-            <div class="ba-dropdown-container" id="ba-cursorSize-container">
-                <select id="ba-cursorSize"><option value="default">Default</option><option value="large">Large</option><option value="xlarge">Extra Large</option></select>
-            </div>
-        </div>
-        <div class="ba-setting-group">
-            <button class="ba-toggle-slider" data-target="highlight">Highlight Text</button>
-            <div class="ba-dropdown-container" id="ba-highlight-container">
-                <label for="ba-highlightColor">Highlight Color</label>
-                <input id="ba-highlightColor" type="color" value="#fff176">
-                <button id="ba-highlight">Highlight Selection</button>
-                <button id="ba-clearHighlights" class="secondary">Clear Highlights</button>
-            </div>
-        </div>
-        <button id="ba-reset" class="secondary">Reset</button>
+        <button id="ba-reset" class="secondary" style="width:100%; margin-top:4px;">Reset All</button>
     `;
 
     let isDragging = false;

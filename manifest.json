@@ -11,5 +11,11 @@
       "matches": ["<all_urls>"],
       "js": ["content-utils.js", "content-widget.js", "content.js"]
     }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["BarrierFreeWeb_Icon.png"],
+      "matches": ["<all_urls>"]
+    }
   ]
 }
