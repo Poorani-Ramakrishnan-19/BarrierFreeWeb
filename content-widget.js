@@ -148,10 +148,6 @@ function createFloatingAccessWidget() {
         .ba-toggle-btn.active {
             box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4);
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
     `;
     document.head.appendChild(style);
 
@@ -245,7 +241,7 @@ function createFloatingAccessWidget() {
         let panelWidth = panel.offsetWidth;
         let panelHeight = panel.offsetHeight;
 
-        if ((panelWidth === 0 || panelHeight === 0) && panel.style.display === 'none') {
+        if ((panelWidth === 0 || panelHeight === 0) && getComputedStyle(panel).display === 'none') {
             panel.style.position = 'absolute';
             panel.style.left = '-9999px';
             panel.style.display = 'block';
@@ -259,16 +255,19 @@ function createFloatingAccessWidget() {
         if (!panelWidth) panelWidth = defaultPanelWidth;
         if (!panelHeight) panelHeight = defaultPanelHeight;
 
-        icon.style.left = x + 'px';
-        icon.style.top = y + 'px';
+        const clampedX = Math.max(0, Math.min(x, viewportWidth - iconWidth));
+        const clampedY = Math.max(0, Math.min(y, viewportHeight - iconHeight));
+
+        icon.style.left = clampedX + 'px';
+        icon.style.top = clampedY + 'px';
         icon.style.right = 'auto';
         icon.style.bottom = 'auto';
 
         const positions = [
-            { left: x, top: y - panelHeight - 10 },
-            { left: x, top: y + iconHeight + 10 },
-            { left: x - panelWidth + iconWidth, top: y - panelHeight - 10 },
-            { left: x - panelWidth + iconWidth, top: y + iconHeight + 10 }
+            { left: clampedX, top: clampedY - panelHeight - 10 },
+            { left: clampedX, top: clampedY + iconHeight + 10 },
+            { left: clampedX - panelWidth + iconWidth, top: clampedY - panelHeight - 10 },
+            { left: clampedX - panelWidth + iconWidth, top: clampedY + iconHeight + 10 }
         ];
 
         let bestPosition = positions[0];
