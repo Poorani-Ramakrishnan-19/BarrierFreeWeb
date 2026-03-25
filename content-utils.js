@@ -77,6 +77,21 @@ let contrastEffects = {
 
 let customContrastValue = 100;
 
+function ensureContrastStyleTag() {
+    let styleTag = document.getElementById('ba-contrast-style');
+    if (styleTag) return styleTag;
+
+    styleTag = document.createElement('style');
+    styleTag.id = 'ba-contrast-style';
+    styleTag.textContent = `
+        body.ba-contrast-active > *:not(#ba-access-widget):not(#ba-widget-panel) {
+            filter: var(--ba-contrast-filter, none) !important;
+        }
+    `;
+    document.head.appendChild(styleTag);
+    return styleTag;
+}
+
 function applyContrastEffect(effect, enable) {
     let filter = '';
     
@@ -98,14 +113,15 @@ function applyContrastEffect(effect, enable) {
     
     filter = filters.join(' ');
     
-    // Apply to body, excluding widget elements
-    document.body.style.filter = filter;
-    
-    // Make sure widget is not affected
-    const widget = document.getElementById('ba-access-widget');
-    const panel = document.getElementById('ba-widget-panel');
-    if (widget) widget.style.filter = 'none';
-    if (panel) panel.style.filter = 'none';
+    ensureContrastStyleTag();
+
+    if (filter) {
+        document.body.classList.add('ba-contrast-active');
+        document.body.style.setProperty('--ba-contrast-filter', filter);
+    } else {
+        document.body.classList.remove('ba-contrast-active');
+        document.body.style.removeProperty('--ba-contrast-filter');
+    }
 }
 
 function setCustomContrast(value) {
@@ -125,7 +141,8 @@ function clearAllContrastEffects() {
         desaturate: false
     };
     customContrastValue = 100;
-    document.body.style.filter = '';
+    document.body.classList.remove('ba-contrast-active');
+    document.body.style.removeProperty('--ba-contrast-filter');
 }
 
 function toggleLinkHighlights(color) {
