@@ -20,6 +20,42 @@ document.getElementById("apply").addEventListener("click", () => {
     });
 });
 
+const highlightBtn = document.getElementById("highlight");
+const highlightColorInput = document.getElementById("highlightColor");
+
+function getContrastYIQ(hexcolor) {
+    const hex = hexcolor.replace('#', '');
+    const r = parseInt(hex.substr(0,2),16);
+    const g = parseInt(hex.substr(2,2),16);
+    const b = parseInt(hex.substr(4,2),16);
+    const yiq = ((r*299)+(g*587)+(b*114))/1000;
+    return yiq >= 128 ? '#000000' : '#ffffff';
+}
+
+function updateHighlightButtonColor() {
+    const color = highlightColorInput.value || '#fff176';
+    highlightBtn.style.backgroundColor = color;
+    highlightBtn.style.color = getContrastYIQ(color);
+    highlightBtn.style.border = '1.5px solid ' + color;
+}
+
+highlightColorInput.addEventListener('input', updateHighlightButtonColor);
+updateHighlightButtonColor();
+
+// Highlight selected text in the active tab
+highlightBtn.addEventListener("click", () => {
+    const highlightColor = highlightColorInput.value || "#fff176";
+    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+        chrome.tabs.sendMessage(tabs[0].id, { highlight: true, color: highlightColor });
+    });
+});
+
+// Clear all highlights in the active tab
+document.getElementById("clearHighlights").addEventListener("click", () => {
+    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+        chrome.tabs.sendMessage(tabs[0].id, { highlightClear: true });
+    });
+});
 document.getElementById("reset").addEventListener("click", () => {
     // Reset UI controls to default values
     document.getElementById("fontSize").value = 16;

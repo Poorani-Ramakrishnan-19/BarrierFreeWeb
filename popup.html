@@ -54,7 +54,17 @@
     </div>
 </div>
 
-<button id="apply">Apply</button>
+<div class="setting-group">
+    <button type="button" class="toggle-slider" data-target="highlight">Highlight Text</button>
+    <div class="dropdown-container" id="highlight-container" style="display:none;">
+        <label for="highlightColor">Highlight Color</label>
+        <input id="highlightColor" type="color" value="#fff176" style="width:100%; margin-bottom: 8px;">
+        <button id="highlight" style="width: 100%; margin-top: 6px; background:#ffea00;color:#000;border:1.5px solid #ccc;">Highlight Selection</button>
+        <button id="clearHighlights" style="width: 100%; margin-top: 6px; background:#fff;color:#000;border:1.5px solid #888;">Clear Highlights</button>
+    </div>
+</div>
+
+<button id="apply" style="margin-top:8px;">Apply</button>
 <button id="reset" style="margin-top:8px;background:#fff;color:#5a7cff;border:1.5px solid #5a7cff;">Reset</button>
 
 <script src="popup.js"></script>
