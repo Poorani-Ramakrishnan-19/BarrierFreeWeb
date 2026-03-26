@@ -59,7 +59,7 @@ chrome://extensions/
 
 5.Select the project folder
 
-The extension will now appear in your browser toolbar.
+The extension will now appear in your browser toolbar also a floating widget.
 
 **Technologies Used**
 
