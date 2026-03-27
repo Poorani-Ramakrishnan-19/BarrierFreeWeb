@@ -37,6 +37,7 @@ function createFloatingAccessWidget() {
             bottom: 80px;
             right: 20px;
             width: 320px;
+            max-height: calc(100vh - 110px);
             background: #ffffff;
             border: 1px solid #dbe2ef;
             border-radius: 14px;
@@ -46,7 +47,21 @@ function createFloatingAccessWidget() {
             display: none;
             font-family: 'Segoe UI', Arial, sans-serif;
             color: #1f2a44;
-            overflow: hidden;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: #93a3c9 #eef3ff;
+        }
+        #ba-widget-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+        #ba-widget-panel::-webkit-scrollbar-track {
+            background: #eef3ff;
+            border-radius: 999px;
+        }
+        #ba-widget-panel::-webkit-scrollbar-thumb {
+            background: #93a3c9;
+            border-radius: 999px;
         }
         #ba-widget-panel h3 {
             margin: 0 0 10px;
@@ -61,13 +76,42 @@ function createFloatingAccessWidget() {
             background: #f6f8fd;
             border: 1px solid #e3e9f5;
             border-radius: 10px;
-            padding: 10px;
+            overflow: hidden;
         }
-        #ba-widget-panel .ba-group h4 {
+        #ba-widget-panel .ba-group-toggle {
+            width: 100%;
+            margin: 0;
+            border-radius: 0;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: transparent;
+            color: #3a4b72;
+            cursor: pointer;
+        }
+        #ba-widget-panel .ba-group-toggle:hover {
+            background: #edf2ff;
+        }
+        #ba-widget-panel .ba-group-title {
             margin: 0 0 8px;
             font-size: 0.86rem;
             font-weight: 650;
             color: #3a4b72;
+            text-align: left;
+        }
+        #ba-widget-panel .ba-group-indicator {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #526389;
+            line-height: 1;
+        }
+        #ba-widget-panel .ba-group-content {
+            padding: 0 10px 10px;
+        }
+        #ba-widget-panel .ba-group.collapsed .ba-group-content {
+            display: none;
         }
         #ba-widget-panel .ba-setting-grid {
             display: grid;
@@ -164,8 +208,12 @@ function createFloatingAccessWidget() {
     panel.className = 'ba-widget-element';
     panel.innerHTML = `
         <h3>Accessibility Controls</h3>
-        <div class="ba-group">
-            <h4>Text Dimensions</h4>
+        <div class="ba-group" data-section="text-dimensions">
+            <button type="button" class="ba-group-toggle" aria-expanded="true">
+                <span class="ba-group-title">Text Dimensions</span>
+                <span class="ba-group-indicator">-</span>
+            </button>
+            <div class="ba-group-content">
             <div class="ba-setting-grid">
                 <div class="ba-setting-item">
                     <label for="ba-fontSize">Font Size <strong><span id="ba-fontSize-value">16</span>px</strong></label>
@@ -180,10 +228,15 @@ function createFloatingAccessWidget() {
                     <input type="range" id="ba-spacing" min="0" max="5" step="0.1" value="0">
                 </div>
             </div>
+            </div>
         </div>
 
-        <div class="ba-group">
-            <h4>Typography</h4>
+        <div class="ba-group collapsed" data-section="typography">
+            <button type="button" class="ba-group-toggle" aria-expanded="false">
+                <span class="ba-group-title">Typography</span>
+                <span class="ba-group-indicator">+</span>
+            </button>
+            <div class="ba-group-content">
             <div class="ba-setting-grid">
                 <div class="ba-setting-item">
                     <label for="ba-fontFamily">Font Family</label>
@@ -194,10 +247,15 @@ function createFloatingAccessWidget() {
                     <select id="ba-cursorSize"><option value="default">Default</option><option value="large">Large</option><option value="xlarge">Extra Large</option></select>
                 </div>
             </div>
+            </div>
         </div>
 
-        <div class="ba-group">
-            <h4>Highlight</h4>
+        <div class="ba-group collapsed" data-section="highlight">
+            <button type="button" class="ba-group-toggle" aria-expanded="false">
+                <span class="ba-group-title">Highlight</span>
+                <span class="ba-group-indicator">+</span>
+            </button>
+            <div class="ba-group-content">
             <div style="display:flex; gap:6px; margin-bottom:8px;">
                 <button id="ba-highlight-links" style="flex:1;">Highlight Links</button>
             </div>
@@ -205,10 +263,15 @@ function createFloatingAccessWidget() {
             <input id="ba-highlightColor" type="color" value="#fff176">
             <button id="ba-highlight" style="width:100%; margin-top:8px;">Highlight Selection</button>
             <button id="ba-clearHighlights" class="secondary" style="width:100%; margin-top:4px;">Clear Highlights</button>
+            </div>
         </div>
 
-        <div class="ba-group">
-            <h4>Contrast</h4>
+        <div class="ba-group collapsed" data-section="contrast">
+            <button type="button" class="ba-group-toggle" aria-expanded="false">
+                <span class="ba-group-title">Contrast</span>
+                <span class="ba-group-indicator">+</span>
+            </button>
+            <div class="ba-group-content">
             <div class="ba-setting-grid">
                 <div class="ba-setting-item"><button id="ba-invert-colors" class="ba-toggle-btn">Invert Colors</button></div>
                 <div class="ba-setting-item"><button id="ba-dark-contrast" class="ba-toggle-btn">Dark Contrast</button></div>
@@ -219,6 +282,7 @@ function createFloatingAccessWidget() {
                     <input type="range" id="ba-custom-contrast" min="50" max="200" value="100" step="5">
                 </div>
                 <div class="ba-setting-item"><button id="ba-desaturate" class="ba-toggle-btn">Desaturate</button></div>
+            </div>
             </div>
         </div>
 
@@ -339,6 +403,19 @@ function createFloatingAccessWidget() {
 
     document.body.appendChild(icon);
     document.body.appendChild(panel);
+
+    panel.querySelectorAll('.ba-group-toggle').forEach((toggle) => {
+        toggle.addEventListener('click', () => {
+            const group = toggle.closest('.ba-group');
+            if (!group) return;
+
+            const isCollapsed = group.classList.toggle('collapsed');
+            toggle.setAttribute('aria-expanded', String(!isCollapsed));
+
+            const indicator = toggle.querySelector('.ba-group-indicator');
+            if (indicator) indicator.textContent = isCollapsed ? '+' : '-';
+        });
+    });
 
     const fontSize = document.getElementById('ba-fontSize');
     const lineHeight = document.getElementById('ba-lineHeight');
