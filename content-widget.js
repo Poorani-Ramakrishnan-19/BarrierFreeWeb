@@ -95,7 +95,7 @@ function createFloatingAccessWidget() {
             background: #edf2ff;
         }
         #ba-widget-panel .ba-group-title {
-            margin: 0 0 8px;
+            margin: 0;
             font-size: 0.86rem;
             font-weight: 650;
             color: #3a4b72;
@@ -108,7 +108,7 @@ function createFloatingAccessWidget() {
             line-height: 1;
         }
         #ba-widget-panel .ba-group-content {
-            padding: 0 10px 10px;
+            padding: 8px 10px 10px;
         }
         #ba-widget-panel .ba-group.collapsed .ba-group-content {
             display: none;
@@ -211,7 +211,7 @@ function createFloatingAccessWidget() {
         <div class="ba-group" data-section="text-dimensions">
             <button type="button" class="ba-group-toggle" aria-expanded="true">
                 <span class="ba-group-title">Text Dimensions</span>
-                <span class="ba-group-indicator">-</span>
+                <span class="ba-group-indicator" aria-hidden="true">-</span>
             </button>
             <div class="ba-group-content">
             <div class="ba-setting-grid">
@@ -234,7 +234,7 @@ function createFloatingAccessWidget() {
         <div class="ba-group collapsed" data-section="typography">
             <button type="button" class="ba-group-toggle" aria-expanded="false">
                 <span class="ba-group-title">Typography</span>
-                <span class="ba-group-indicator">+</span>
+                <span class="ba-group-indicator" aria-hidden="true">+</span>
             </button>
             <div class="ba-group-content">
             <div class="ba-setting-grid">
@@ -253,7 +253,7 @@ function createFloatingAccessWidget() {
         <div class="ba-group collapsed" data-section="highlight">
             <button type="button" class="ba-group-toggle" aria-expanded="false">
                 <span class="ba-group-title">Highlight</span>
-                <span class="ba-group-indicator">+</span>
+                <span class="ba-group-indicator" aria-hidden="true">+</span>
             </button>
             <div class="ba-group-content">
             <div style="display:flex; gap:6px; margin-bottom:8px;">
@@ -269,7 +269,7 @@ function createFloatingAccessWidget() {
         <div class="ba-group collapsed" data-section="contrast">
             <button type="button" class="ba-group-toggle" aria-expanded="false">
                 <span class="ba-group-title">Contrast</span>
-                <span class="ba-group-indicator">+</span>
+                <span class="ba-group-indicator" aria-hidden="true">+</span>
             </button>
             <div class="ba-group-content">
             <div class="ba-setting-grid">
@@ -414,6 +414,14 @@ function createFloatingAccessWidget() {
 
             const indicator = toggle.querySelector('.ba-group-indicator');
             if (indicator) indicator.textContent = isCollapsed ? '+' : '-';
+
+            // Re-run positioning logic so the panel remains on-screen after height changes.
+            if (typeof updateWidgetPosition === 'function' && icon) {
+                const iconRect = icon.getBoundingClientRect();
+                const iconCenterX = iconRect.left + (iconRect.width / 2);
+                const iconCenterY = iconRect.top + (iconRect.height / 2);
+                updateWidgetPosition(iconCenterX, iconCenterY);
+            }
         });
     });
 
