@@ -31,6 +31,10 @@ function createFloatingAccessWidget() {
         #ba-access-widget:hover #ba-access-widget-img {
             transform: scale(1.35);
         }
+        #ba-access-widget.ba-widget-dark {
+            background: linear-gradient(135deg, #2a3348, #111827);
+            border-color: #334155;
+        }
 
         #ba-widget-panel {
             position: fixed;
@@ -63,6 +67,19 @@ function createFloatingAccessWidget() {
             background: #93a3c9;
             border-radius: 999px;
         }
+        #ba-widget-panel.ba-panel-dark {
+            background: #0f172a;
+            border-color: #334155;
+            color: #e2e8f0;
+            box-shadow: 0 18px 40px rgba(2, 6, 23, 0.45);
+            scrollbar-color: #64748b #1e293b;
+        }
+        #ba-widget-panel.ba-panel-dark::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        #ba-widget-panel.ba-panel-dark::-webkit-scrollbar-thumb {
+            background: #64748b;
+        }
         #ba-widget-panel h3 {
             margin: 0 0 10px;
             font-size: 1rem;
@@ -71,12 +88,19 @@ function createFloatingAccessWidget() {
             text-transform: uppercase;
             letter-spacing: 0.06em;
         }
+        #ba-widget-panel.ba-panel-dark h3 {
+            color: #f1f5f9;
+        }
         #ba-widget-panel .ba-group {
             margin-bottom: 10px;
             background: #f6f8fd;
             border: 1px solid #e3e9f5;
             border-radius: 10px;
             overflow: hidden;
+        }
+        #ba-widget-panel.ba-panel-dark .ba-group {
+            background: #1e293b;
+            border-color: #334155;
         }
         #ba-widget-panel .ba-group-toggle {
             width: 100%;
@@ -101,11 +125,17 @@ function createFloatingAccessWidget() {
             color: #3a4b72;
             text-align: left;
         }
+        #ba-widget-panel.ba-panel-dark .ba-group-title {
+            color: #e2e8f0;
+        }
         #ba-widget-panel .ba-group-indicator {
             font-size: 1rem;
             font-weight: 700;
             color: #526389;
             line-height: 1;
+        }
+        #ba-widget-panel.ba-panel-dark .ba-group-indicator {
+            color: #94a3b8;
         }
         #ba-widget-panel .ba-group-content {
             padding: 8px 10px 10px;
@@ -127,6 +157,10 @@ function createFloatingAccessWidget() {
             font-size: 0.78rem;
             color: #59687f;
         }
+        #ba-widget-panel.ba-panel-dark .ba-setting-item label,
+        #ba-widget-panel.ba-panel-dark label {
+            color: #cbd5e1;
+        }
         #ba-widget-panel input[type="range"] {
             width: 100%;
             margin: 0 0 6px 0;
@@ -146,6 +180,11 @@ function createFloatingAccessWidget() {
             color: #22223b;
             margin-bottom: 10px;
         }
+        #ba-widget-panel.ba-panel-dark select {
+            background: #0f172a;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
         #ba-widget-panel input[type="color"] {
             width: 100%;
             height: 30px;
@@ -153,6 +192,10 @@ function createFloatingAccessWidget() {
             border: 1px solid #cbd5e1;
             margin-bottom: 8px;
             padding: 2px;
+        }
+        #ba-widget-panel.ba-panel-dark input[type="color"] {
+            border-color: #475569;
+            background: #0f172a;
         }
         #ba-widget-panel label {
             display: block;
@@ -185,6 +228,63 @@ function createFloatingAccessWidget() {
         #ba-widget-panel button.secondary:hover {
             background: #f8fafc;
         }
+        #ba-widget-panel .ba-contrast-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 6px;
+            margin-top: 2px;
+        }
+        #ba-widget-panel .ba-contrast-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #e9efff;
+            color: #334155;
+            border: 1px solid #c7d2fe;
+            box-shadow: none;
+        }
+        #ba-widget-panel .ba-contrast-btn:hover {
+            background: #dbe7ff;
+            color: #1e293b;
+        }
+        #ba-widget-panel.ba-panel-dark .ba-contrast-btn {
+            background: #0b1220;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+        }
+        #ba-widget-panel.ba-panel-dark .ba-contrast-btn:hover {
+            background: #111c33;
+            color: #e2e8f0;
+        }
+        #ba-widget-panel .ba-contrast-btn.active {
+            background: linear-gradient(90deg, #5a7cff 0%, #3a5ad7 100%);
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 0 0 2px rgba(90, 124, 255, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+        }
+        #ba-widget-panel .ba-contrast-btn.active:hover,
+        #ba-widget-panel.ba-panel-dark .ba-contrast-btn.active:hover {
+            background: linear-gradient(90deg, #5a7cff 0%, #3a5ad7 100%);
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 0 0 2px rgba(90, 124, 255, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+        }
+        #ba-widget-panel .ba-contrast-btn img {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            object-fit: contain;
+            background: rgba(255, 255, 255, 0.65);
+            padding: 1px;
+        }
+        #ba-widget-panel .ba-contrast-btn.active img {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        #ba-widget-panel #ba-custom-contrast-wrap {
+            display: none;
+            margin-top: 8px;
+        }
         .ba-link-highlight {
             border-radius: 2px;
             transition: background-color 0.2s;
@@ -206,6 +306,11 @@ function createFloatingAccessWidget() {
     const panel = document.createElement('div');
     panel.id = 'ba-widget-panel';
     panel.className = 'ba-widget-element';
+    const invertActionIcon = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#ffffff" stroke="#3655c6" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18z" fill="#3655c6"/></svg>');
+    const desaturateActionIcon = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2" fill="#ffffff" stroke="#3655c6" stroke-width="2"/><path d="M12 5v14" stroke="#3655c6" stroke-width="2"/><rect x="4" y="5" width="8" height="14" rx="2" fill="#3655c6"/></svg>');
+    const darkActionIcon = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#3655c6" stroke="#3655c6" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="#ffffff"/></svg>');
+    const lightActionIcon = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#ffffff" stroke="#3655c6" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="#3655c6"/></svg>');
+    const adjustActionIcon = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#ffffff" stroke="#3655c6" stroke-width="2"/><path d="M7 12h10M12 7v10" stroke="#3655c6" stroke-width="2" stroke-linecap="round"/></svg>');
     panel.innerHTML = `
         <h3>Accessibility Controls</h3>
         <div class="ba-group" data-section="text-dimensions">
@@ -268,21 +373,32 @@ function createFloatingAccessWidget() {
 
         <div class="ba-group collapsed" data-section="contrast">
             <button type="button" class="ba-group-toggle" aria-expanded="false">
-                <span class="ba-group-title">Contrast</span>
+                <span class="ba-group-title">Appearance</span>
                 <span class="ba-group-indicator" aria-hidden="true">+</span>
             </button>
             <div class="ba-group-content">
-            <div class="ba-setting-grid">
-                <div class="ba-setting-item"><button id="ba-invert-colors" class="ba-toggle-btn">Invert Colors</button></div>
-                <div class="ba-setting-item"><button id="ba-dark-contrast" class="ba-toggle-btn">Dark Contrast</button></div>
-                <div class="ba-setting-item"><button id="ba-light-contrast" class="ba-toggle-btn">Light Contrast</button></div>
-                <div class="ba-setting-item"><button id="ba-high-contrast" class="ba-toggle-btn">High Contrast</button></div>
-                <div class="ba-setting-item">
+                <div class="ba-contrast-actions">
+                    <button id="ba-contrast-invert" class="ba-contrast-btn" type="button">
+                        <img src="${invertActionIcon}" alt="Invert color">
+                        <span>Invert Color</span>
+                    </button>
+                    <button id="ba-contrast-desaturate" class="ba-contrast-btn" type="button">
+                        <img src="${desaturateActionIcon}" alt="Desaturate">
+                        <span>Desaturate</span>
+                    </button>
+                    <button id="ba-contrast-theme" class="ba-contrast-btn" type="button">
+                        <img id="ba-contrast-theme-icon" src="${lightActionIcon}" alt="Theme: Light">
+                        <span id="ba-contrast-theme-label">Theme: Light</span>
+                    </button>
+                    <button id="ba-contrast-adjust" class="ba-contrast-btn" type="button">
+                        <img src="${adjustActionIcon}" alt="Adjust contrast">
+                        <span id="ba-contrast-adjust-label">Adjust Contrast</span>
+                    </button>
+                </div>
+                <div id="ba-custom-contrast-wrap">
                     <label for="ba-custom-contrast">Custom Contrast <strong><span id="ba-custom-contrast-value">100</span>%</strong></label>
                     <input type="range" id="ba-custom-contrast" min="50" max="200" value="100" step="5">
                 </div>
-                <div class="ba-setting-item"><button id="ba-desaturate" class="ba-toggle-btn">Desaturate</button></div>
-            </div>
             </div>
         </div>
 
@@ -404,6 +520,10 @@ function createFloatingAccessWidget() {
     document.body.appendChild(icon);
     document.body.appendChild(panel);
 
+    panel.addEventListener('click', (event) => {
+        event.stopPropagation();
+    });
+
     panel.querySelectorAll('.ba-group-toggle').forEach((toggle) => {
         toggle.addEventListener('click', () => {
             const group = toggle.closest('.ba-group');
@@ -471,7 +591,8 @@ function createFloatingAccessWidget() {
         updateValues();
         applyTextSettings({ reset: true });
         document.getElementById('ba-highlight-links').textContent = 'Highlight Links';
-        document.querySelectorAll('.ba-toggle-btn').forEach(btn => btn.classList.remove('active'));
+        currentAdjustModeIndex = 0;
+        setActiveContrastMode('none');
     });
 
     document.getElementById('ba-highlight').addEventListener('click', () => {
@@ -485,43 +606,129 @@ function createFloatingAccessWidget() {
     });
 
     document.getElementById('ba-clearHighlights').addEventListener('click', clearHighlights);
-
-    document.getElementById('ba-invert-colors').addEventListener('click', function() {
-        const isActive = this.classList.toggle('active');
-        applyContrastEffect('invert', isActive);
-    });
-
-    document.getElementById('ba-dark-contrast').addEventListener('click', function() {
-        const isActive = this.classList.toggle('active');
-        applyContrastEffect('dark', isActive);
-    });
-
-    document.getElementById('ba-light-contrast').addEventListener('click', function() {
-        const isActive = this.classList.toggle('active');
-        applyContrastEffect('light', isActive);
-    });
-
-    document.getElementById('ba-high-contrast').addEventListener('click', function() {
-        const isActive = this.classList.toggle('active');
-        applyContrastEffect('high', isActive);
-    });
-
-    document.getElementById('ba-desaturate').addEventListener('click', function() {
-        const isActive = this.classList.toggle('active');
-        applyContrastEffect('desaturate', isActive);
-    });
-
     const customContrast = document.getElementById('ba-custom-contrast');
     const customContrastValue = document.getElementById('ba-custom-contrast-value');
+    const customContrastWrap = document.getElementById('ba-custom-contrast-wrap');
+    const contrastInvertButton = document.getElementById('ba-contrast-invert');
+    const contrastDesaturateButton = document.getElementById('ba-contrast-desaturate');
+    const contrastThemeButton = document.getElementById('ba-contrast-theme');
+    const contrastThemeButtonLabel = document.getElementById('ba-contrast-theme-label');
+    const contrastThemeButtonIcon = document.getElementById('ba-contrast-theme-icon');
+    const contrastAdjustButton = document.getElementById('ba-contrast-adjust');
+    const contrastAdjustButtonLabel = document.getElementById('ba-contrast-adjust-label');
+
+    const contrastModeLabels = {
+        none: 'None',
+        invert: 'Invert Colors',
+        darkContrast: 'Dark Contrast',
+        lightContrast: 'Light Contrast',
+        high: 'High Contrast',
+        custom: 'Custom Contrast',
+        desaturate: 'Desaturate'
+    };
+    const themeModeLabels = {
+        darkTheme: 'Theme: Dark',
+        lightTheme: 'Theme: Light'
+    };
+    const themeModeIcons = {
+        darkTheme: darkActionIcon,
+        lightTheme: lightActionIcon
+    };
+    const themeModes = ['darkTheme', 'lightTheme'];
+    const adjustableContrastModes = ['none', 'darkContrast', 'lightContrast', 'high', 'custom'];
+    let currentAdjustModeIndex = 0;
+    let currentThemeModeIndex = 0;
+    let activeContrastMode = 'none';
+
+    function detectCurrentThemeMode() {
+        if (typeof window.isBarrierFreePageMode === 'function' && window.isBarrierFreePageMode('dark')) {
+            return 'darkTheme';
+        }
+        return 'lightTheme';
+    }
+
+    function updateWidgetThemeAppearance(mode) {
+        const appliedMode = mode || activeContrastMode;
+        const isDarkTheme = appliedMode === 'darkTheme' || (appliedMode !== 'lightTheme' && detectCurrentThemeMode() === 'darkTheme');
+        panel.classList.toggle('ba-panel-dark', isDarkTheme);
+        icon.classList.toggle('ba-widget-dark', isDarkTheme);
+    }
+
+    function setActiveContrastMode(mode) {
+        clearAllContrastEffects();
+        if (mode !== 'none') applyContrastEffect(mode, true);
+        activeContrastMode = mode;
+
+        contrastInvertButton.classList.toggle('active', mode === 'invert');
+        contrastDesaturateButton.classList.toggle('active', mode === 'desaturate');
+        const isThemeMode = themeModes.includes(mode);
+        contrastThemeButton.classList.toggle('active', isThemeMode);
+        const activeThemeMode = themeModes.includes(mode) ? mode : detectCurrentThemeMode();
+        contrastThemeButtonLabel.textContent = themeModeLabels[activeThemeMode];
+        contrastThemeButtonIcon.setAttribute('src', themeModeIcons[activeThemeMode]);
+        contrastThemeButtonIcon.setAttribute('alt', themeModeLabels[activeThemeMode]);
+        contrastAdjustButton.classList.toggle('active', adjustableContrastModes.includes(mode) && mode !== 'none');
+
+        contrastAdjustButtonLabel.textContent = (adjustableContrastModes.includes(mode) && mode !== 'none')
+            ? contrastModeLabels[mode]
+            : 'Adjust Contrast';
+
+        customContrastWrap.style.display = mode === 'custom' ? 'block' : 'none';
+        updateWidgetThemeAppearance(mode);
+    }
+
+    contrastInvertButton.addEventListener('click', () => {
+        const nextMode = activeContrastMode === 'invert' ? 'none' : 'invert';
+        setActiveContrastMode(nextMode);
+    });
+
+    contrastDesaturateButton.addEventListener('click', () => {
+        const nextMode = activeContrastMode === 'desaturate' ? 'none' : 'desaturate';
+        setActiveContrastMode(nextMode);
+    });
+
+    contrastThemeButton.addEventListener('click', () => {
+        if (themeModes.includes(activeContrastMode)) {
+            currentThemeModeIndex = themeModes.indexOf(activeContrastMode);
+        } else {
+            currentThemeModeIndex = themeModes.indexOf(detectCurrentThemeMode());
+        }
+
+        let attempts = 0;
+        while (attempts < themeModes.length) {
+            currentThemeModeIndex = (currentThemeModeIndex + 1) % themeModes.length;
+            const nextMode = themeModes[currentThemeModeIndex];
+            const switchingFromNonTheme = !themeModes.includes(activeContrastMode);
+            const blockedDark = switchingFromNonTheme && nextMode === 'darkTheme' && typeof window.isBarrierFreePageMode === 'function' && window.isBarrierFreePageMode('dark');
+            const blockedLight = switchingFromNonTheme && nextMode === 'lightTheme' && typeof window.isBarrierFreePageMode === 'function' && window.isBarrierFreePageMode('light');
+            if (!blockedDark && !blockedLight) {
+                setActiveContrastMode(nextMode);
+                break;
+            }
+            attempts += 1;
+        }
+    });
+
+    contrastAdjustButton.addEventListener('click', () => {
+        if (adjustableContrastModes.includes(activeContrastMode)) {
+            currentAdjustModeIndex = adjustableContrastModes.indexOf(activeContrastMode);
+        } else {
+            currentAdjustModeIndex = 0;
+        }
+        currentAdjustModeIndex = (currentAdjustModeIndex + 1) % adjustableContrastModes.length;
+        setActiveContrastMode(adjustableContrastModes[currentAdjustModeIndex]);
+    });
 
     customContrast.addEventListener('input', function() {
         customContrastValue.textContent = this.value;
         setCustomContrast(parseInt(this.value, 10));
-        if (!contrastEffects.custom) {
-            contrastEffects.custom = true;
+        if (activeContrastMode === 'custom') {
             applyContrastEffect('custom', true);
         }
     });
+
+    setActiveContrastMode('none');
+    updateWidgetThemeAppearance('none');
 
     document.addEventListener('click', (event) => {
         if (!panel.contains(event.target) && !icon.contains(event.target)) {
