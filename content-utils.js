@@ -68,11 +68,13 @@ let linksHighlighted = false;
 
 let contrastEffects = {
     invert: false,
-    dark: false,
-    light: false,
+    darkContrast: false,
+    lightContrast: false,
     high: false,
     custom: false,
-    desaturate: false
+    desaturate: false,
+    darkTheme: false,
+    lightTheme: false
 };
 
 let customContrastValue = 100;
@@ -87,9 +89,123 @@ function ensureContrastStyleTag() {
         body.ba-contrast-active > *:not(#ba-access-widget):not(#ba-widget-panel) {
             filter: var(--ba-contrast-filter, none) !important;
         }
+
+        a.ba-link-highlight,
+        a.ba-link-highlight:link,
+        a.ba-link-highlight:visited,
+        a.ba-link-highlight:hover,
+        a.ba-link-highlight:active,
+        a.ba-link-highlight:focus {
+            background-color: var(--ba-link-highlight-bg, #000000) !important;
+            color: var(--ba-link-highlight-color, #fff176) !important;
+            -webkit-text-fill-color: var(--ba-link-highlight-color, #fff176) !important;
+        }
+
+        a.ba-link-highlight *,
+        a.ba-link-highlight *:before,
+        a.ba-link-highlight *:after {
+            color: var(--ba-link-highlight-color, #fff176) !important;
+            -webkit-text-fill-color: var(--ba-link-highlight-color, #fff176) !important;
+        }
+
+        body.ba-dark-mode > *:not(#ba-access-widget):not(#ba-widget-panel),
+        body.ba-dark-mode :is(div, section, main, article, header, footer, nav, aside, p, span, h1, h2, h3, h4, h5, h6, li, ul, ol, table, thead, tbody, tr, td, th, form, fieldset, label, button, input, textarea, select, a, blockquote, pre, code, figure, figcaption, details, summary, dl, dt, dd):not(#ba-access-widget):not(#ba-widget-panel) {
+            background-color: #121212 !important;
+            color: #f5f7fa !important;
+            border-color: #3b4252 !important;
+        }
+
+        body.ba-light-mode > *:not(#ba-access-widget):not(#ba-widget-panel),
+        body.ba-light-mode :is(div, section, main, article, header, footer, nav, aside, p, span, h1, h2, h3, h4, h5, h6, li, ul, ol, table, thead, tbody, tr, td, th, form, fieldset, label, button, input, textarea, select, a, blockquote, pre, code, figure, figcaption, details, summary, dl, dt, dd):not(#ba-access-widget):not(#ba-widget-panel) {
+            background-color: #ffffff !important;
+            color: #101418 !important;
+            border-color: #d0d7de !important;
+        }
+
+        body.ba-dark-mode img, body.ba-dark-mode video,
+        body.ba-dark-mode canvas, body.ba-dark-mode svg,
+        body.ba-dark-mode iframe,
+        body.ba-light-mode img, body.ba-light-mode video,
+        body.ba-light-mode canvas, body.ba-light-mode svg,
+        body.ba-light-mode iframe {
+            background-color: transparent !important;
+            color: inherit !important;
+        }
     `;
     document.head.appendChild(styleTag);
     return styleTag;
+}
+
+function parseRgbString(color) {
+    const match = color && color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+    if (!match) return null;
+    return [parseInt(match[1], 10), parseInt(match[2], 10), parseInt(match[3], 10)];
+}
+
+function getLuminance(rgb) {
+    if (!rgb) return null;
+    const normalized = rgb.map((value) => {
+        const channel = value / 255;
+        return channel <= 0.03928 ? channel / 12.92 : Math.pow((channel + 0.055) / 1.055, 2.4);
+    });
+    return (0.2126 * normalized[0]) + (0.7152 * normalized[1]) + (0.0722 * normalized[2]);
+}
+
+function getEffectiveBackgroundColor() {
+    const candidates = [document.body, document.documentElement];
+    for (let i = 0; i < candidates.length; i++) {
+        const candidate = candidates[i];
+        if (!candidate) continue;
+        const computed = window.getComputedStyle(candidate);
+        const rgb = parseRgbString(computed.backgroundColor);
+        if (!rgb) continue;
+        const alphaMatch = computed.backgroundColor.match(/rgba\([^,]+,[^,]+,[^,]+,\s*([0-9.]+)\)/i);
+        const alpha = alphaMatch ? parseFloat(alphaMatch[1]) : 1;
+        if (alpha > 0) return rgb;
+    }
+    return [255, 255, 255];
+}
+
+function isPageAlreadyInMode(mode) {
+    const backgroundRgb = getEffectiveBackgroundColor();
+    const textRgb = parseRgbString(window.getComputedStyle(document.body).color) || [0, 0, 0];
+    const bgLum = getLuminance(backgroundRgb);
+    const textLum = getLuminance(textRgb);
+
+    if (mode === 'dark') {
+        return bgLum !== null && textLum !== null && bgLum < 0.35 && textLum > 0.6;
+    }
+    if (mode === 'light') {
+        return bgLum !== null && textLum !== null && bgLum > 0.7 && textLum < 0.4;
+    }
+    return false;
+}
+
+let baOriginalColorScheme = null;
+let baColorSchemeStored = false;
+
+function applyThemeModeClasses() {
+    document.body.classList.remove('ba-dark-mode', 'ba-light-mode');
+
+    if (contrastEffects.darkTheme) {
+        if (!baColorSchemeStored) {
+            baOriginalColorScheme = document.documentElement.style.colorScheme;
+            baColorSchemeStored = true;
+        }
+        document.body.classList.add('ba-dark-mode');
+        document.documentElement.style.colorScheme = 'dark';
+    } else if (contrastEffects.lightTheme) {
+        if (!baColorSchemeStored) {
+            baOriginalColorScheme = document.documentElement.style.colorScheme;
+            baColorSchemeStored = true;
+        }
+        document.body.classList.add('ba-light-mode');
+        document.documentElement.style.colorScheme = 'light';
+    } else if (baColorSchemeStored) {
+        document.documentElement.style.colorScheme = baOriginalColorScheme;
+        baOriginalColorScheme = null;
+        baColorSchemeStored = false;
+    }
 }
 
 function applyContrastEffect(effect, enable) {
@@ -105,8 +221,8 @@ function applyContrastEffect(effect, enable) {
     let filters = [];
     
     if (contrastEffects.invert) filters.push('invert(100%)');
-    if (contrastEffects.dark) filters.push('brightness(0.5) contrast(1.5)');
-    if (contrastEffects.light) filters.push('brightness(1.5) contrast(1.5)');
+    if (contrastEffects.darkContrast) filters.push('brightness(0.5) contrast(1.5)');
+    if (contrastEffects.lightContrast) filters.push('brightness(1.5) contrast(1.5)');
     if (contrastEffects.high) filters.push('contrast(2)');
     if (contrastEffects.custom) filters.push(`contrast(${customContrastValue}%)`);
     if (contrastEffects.desaturate) filters.push('grayscale(100%)');
@@ -114,6 +230,7 @@ function applyContrastEffect(effect, enable) {
     filter = filters.join(' ');
     
     ensureContrastStyleTag();
+    applyThemeModeClasses();
 
     if (filter) {
         document.body.classList.add('ba-contrast-active');
@@ -134,15 +251,33 @@ function setCustomContrast(value) {
 function clearAllContrastEffects() {
     contrastEffects = {
         invert: false,
-        dark: false,
-        light: false,
+        darkContrast: false,
+        lightContrast: false,
         high: false,
         custom: false,
-        desaturate: false
+        desaturate: false,
+        darkTheme: false,
+        lightTheme: false
     };
     customContrastValue = 100;
     document.body.classList.remove('ba-contrast-active');
+    document.body.classList.remove('ba-dark-mode', 'ba-light-mode');
     document.body.style.removeProperty('--ba-contrast-filter');
+    if (baColorSchemeStored) {
+        document.documentElement.style.colorScheme = baOriginalColorScheme;
+        baOriginalColorScheme = null;
+        baColorSchemeStored = false;
+    }
+}
+
+function getContrastingTextColor(hexColor) {
+    const hex = (hexColor || '').replace(/^#/, '');
+    if (hex.length < 6) return '#101418';
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    const luminance = getLuminance([r, g, b]);
+    return luminance !== null && luminance > 0.35 ? '#101418' : '#f5f7fa';
 }
 
 function toggleLinkHighlights(color) {
@@ -150,11 +285,16 @@ function toggleLinkHighlights(color) {
         clearLinkHighlights();
         return false;
     } else {
+        const linkBackground = color || '#000000';
+        const linkColor = getContrastingTextColor(linkBackground);
+
+        document.documentElement.style.setProperty('--ba-link-highlight-bg', linkBackground);
+        document.documentElement.style.setProperty('--ba-link-highlight-color', linkColor);
+
         const links = document.querySelectorAll('a');
         links.forEach(link => {
             if (isElementInWidget(link)) return;
             link.classList.add('ba-link-highlight');
-            link.style.backgroundColor = color;
         });
         linksHighlighted = true;
         return true;
@@ -165,8 +305,9 @@ function clearLinkHighlights() {
     const links = document.querySelectorAll('a.ba-link-highlight');
     links.forEach(link => {
         link.classList.remove('ba-link-highlight');
-        link.style.backgroundColor = '';
     });
+    document.documentElement.style.removeProperty('--ba-link-highlight-bg');
+    document.documentElement.style.removeProperty('--ba-link-highlight-color');
     linksHighlighted = false;
 }
 
