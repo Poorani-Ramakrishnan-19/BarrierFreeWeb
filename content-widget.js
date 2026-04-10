@@ -579,6 +579,17 @@ function createFloatingAccessWidget() {
     fontFamily.addEventListener('change', applyWidgetSettings);
     cursorSize.addEventListener('change', applyWidgetSettings);
 
+    const customContrast = document.getElementById('ba-custom-contrast');
+    const customContrastValue = document.getElementById('ba-custom-contrast-value');
+    const customContrastWrap = document.getElementById('ba-custom-contrast-wrap');
+    const contrastInvertButton = document.getElementById('ba-contrast-invert');
+    const contrastDesaturateButton = document.getElementById('ba-contrast-desaturate');
+    const contrastThemeButton = document.getElementById('ba-contrast-theme');
+    const contrastThemeButtonLabel = document.getElementById('ba-contrast-theme-label');
+    const contrastThemeButtonIcon = document.getElementById('ba-contrast-theme-icon');
+    const contrastAdjustButton = document.getElementById('ba-contrast-adjust');
+    const contrastAdjustButtonLabel = document.getElementById('ba-contrast-adjust-label');
+
     document.getElementById('ba-reset').addEventListener('click', () => {
         fontSize.value = 16;
         lineHeight.value = 1.5;
@@ -606,16 +617,6 @@ function createFloatingAccessWidget() {
     });
 
     document.getElementById('ba-clearHighlights').addEventListener('click', clearHighlights);
-    const customContrast = document.getElementById('ba-custom-contrast');
-    const customContrastValue = document.getElementById('ba-custom-contrast-value');
-    const customContrastWrap = document.getElementById('ba-custom-contrast-wrap');
-    const contrastInvertButton = document.getElementById('ba-contrast-invert');
-    const contrastDesaturateButton = document.getElementById('ba-contrast-desaturate');
-    const contrastThemeButton = document.getElementById('ba-contrast-theme');
-    const contrastThemeButtonLabel = document.getElementById('ba-contrast-theme-label');
-    const contrastThemeButtonIcon = document.getElementById('ba-contrast-theme-icon');
-    const contrastAdjustButton = document.getElementById('ba-contrast-adjust');
-    const contrastAdjustButtonLabel = document.getElementById('ba-contrast-adjust-label');
 
     const contrastModeLabels = {
         none: 'None',
@@ -641,7 +642,7 @@ function createFloatingAccessWidget() {
     let activeContrastMode = 'none';
 
     function detectCurrentThemeMode() {
-        if (typeof window.isBarrierFreePageMode === 'function' && window.isBarrierFreePageMode('dark')) {
+        if (typeof isPageAlreadyInMode === 'function' && isPageAlreadyInMode('dark')) {
             return 'darkTheme';
         }
         return 'lightTheme';
@@ -699,8 +700,8 @@ function createFloatingAccessWidget() {
             currentThemeModeIndex = (currentThemeModeIndex + 1) % themeModes.length;
             const nextMode = themeModes[currentThemeModeIndex];
             const switchingFromNonTheme = !themeModes.includes(activeContrastMode);
-            const blockedDark = switchingFromNonTheme && nextMode === 'darkTheme' && typeof window.isBarrierFreePageMode === 'function' && window.isBarrierFreePageMode('dark');
-            const blockedLight = switchingFromNonTheme && nextMode === 'lightTheme' && typeof window.isBarrierFreePageMode === 'function' && window.isBarrierFreePageMode('light');
+            const blockedDark = switchingFromNonTheme && nextMode === 'darkTheme' && typeof isPageAlreadyInMode === 'function' && isPageAlreadyInMode('dark');
+            const blockedLight = switchingFromNonTheme && nextMode === 'lightTheme' && typeof isPageAlreadyInMode === 'function' && isPageAlreadyInMode('light');
             if (!blockedDark && !blockedLight) {
                 setActiveContrastMode(nextMode);
                 break;

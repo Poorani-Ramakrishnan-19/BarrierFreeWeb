@@ -109,29 +109,25 @@ function ensureContrastStyleTag() {
         }
 
         body.ba-dark-mode > *:not(#ba-access-widget):not(#ba-widget-panel),
-        body.ba-dark-mode > *:not(#ba-access-widget):not(#ba-widget-panel) *:not(img):not(video):not(picture):not(source):not(canvas):not(svg):not(iframe):not(object):not(embed) {
+        body.ba-dark-mode :is(div, section, main, article, header, footer, nav, aside, p, span, h1, h2, h3, h4, h5, h6, li, ul, ol, table, thead, tbody, tr, td, th, form, fieldset, label, button, input, textarea, select, a, blockquote, pre, code, figure, figcaption, details, summary, dl, dt, dd):not(#ba-access-widget):not(#ba-widget-panel) {
             background-color: #121212 !important;
             color: #f5f7fa !important;
             border-color: #3b4252 !important;
         }
 
         body.ba-light-mode > *:not(#ba-access-widget):not(#ba-widget-panel),
-        body.ba-light-mode > *:not(#ba-access-widget):not(#ba-widget-panel) *:not(img):not(video):not(picture):not(source):not(canvas):not(svg):not(iframe):not(object):not(embed) {
+        body.ba-light-mode :is(div, section, main, article, header, footer, nav, aside, p, span, h1, h2, h3, h4, h5, h6, li, ul, ol, table, thead, tbody, tr, td, th, form, fieldset, label, button, input, textarea, select, a, blockquote, pre, code, figure, figcaption, details, summary, dl, dt, dd):not(#ba-access-widget):not(#ba-widget-panel) {
             background-color: #ffffff !important;
             color: #101418 !important;
             border-color: #d0d7de !important;
         }
 
-        body.ba-dark-mode > *:not(#ba-access-widget):not(#ba-widget-panel) img,
-        body.ba-dark-mode > *:not(#ba-access-widget):not(#ba-widget-panel) video,
-        body.ba-dark-mode > *:not(#ba-access-widget):not(#ba-widget-panel) canvas,
-        body.ba-dark-mode > *:not(#ba-access-widget):not(#ba-widget-panel) svg,
-        body.ba-dark-mode > *:not(#ba-access-widget):not(#ba-widget-panel) iframe,
-        body.ba-light-mode > *:not(#ba-access-widget):not(#ba-widget-panel) img,
-        body.ba-light-mode > *:not(#ba-access-widget):not(#ba-widget-panel) video,
-        body.ba-light-mode > *:not(#ba-access-widget):not(#ba-widget-panel) canvas,
-        body.ba-light-mode > *:not(#ba-access-widget):not(#ba-widget-panel) svg,
-        body.ba-light-mode > *:not(#ba-access-widget):not(#ba-widget-panel) iframe {
+        body.ba-dark-mode img, body.ba-dark-mode video,
+        body.ba-dark-mode canvas, body.ba-dark-mode svg,
+        body.ba-dark-mode iframe,
+        body.ba-light-mode img, body.ba-light-mode video,
+        body.ba-light-mode canvas, body.ba-light-mode svg,
+        body.ba-light-mode iframe {
             background-color: transparent !important;
             color: inherit !important;
         }
@@ -185,18 +181,30 @@ function isPageAlreadyInMode(mode) {
     return false;
 }
 
-window.isBarrierFreePageMode = isPageAlreadyInMode;
+let baOriginalColorScheme = null;
+let baColorSchemeStored = false;
 
 function applyThemeModeClasses() {
     document.body.classList.remove('ba-dark-mode', 'ba-light-mode');
-    document.documentElement.style.colorScheme = '';
 
     if (contrastEffects.darkTheme) {
+        if (!baColorSchemeStored) {
+            baOriginalColorScheme = document.documentElement.style.colorScheme;
+            baColorSchemeStored = true;
+        }
         document.body.classList.add('ba-dark-mode');
         document.documentElement.style.colorScheme = 'dark';
     } else if (contrastEffects.lightTheme) {
+        if (!baColorSchemeStored) {
+            baOriginalColorScheme = document.documentElement.style.colorScheme;
+            baColorSchemeStored = true;
+        }
         document.body.classList.add('ba-light-mode');
         document.documentElement.style.colorScheme = 'light';
+    } else if (baColorSchemeStored) {
+        document.documentElement.style.colorScheme = baOriginalColorScheme;
+        baOriginalColorScheme = null;
+        baColorSchemeStored = false;
     }
 }
 
@@ -255,7 +263,21 @@ function clearAllContrastEffects() {
     document.body.classList.remove('ba-contrast-active');
     document.body.classList.remove('ba-dark-mode', 'ba-light-mode');
     document.body.style.removeProperty('--ba-contrast-filter');
-    document.documentElement.style.colorScheme = '';
+    if (baColorSchemeStored) {
+        document.documentElement.style.colorScheme = baOriginalColorScheme;
+        baOriginalColorScheme = null;
+        baColorSchemeStored = false;
+    }
+}
+
+function getContrastingTextColor(hexColor) {
+    const hex = (hexColor || '').replace(/^#/, '');
+    if (hex.length < 6) return '#101418';
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    const luminance = getLuminance([r, g, b]);
+    return luminance !== null && luminance > 0.35 ? '#101418' : '#f5f7fa';
 }
 
 function toggleLinkHighlights(color) {
@@ -263,10 +285,8 @@ function toggleLinkHighlights(color) {
         clearLinkHighlights();
         return false;
     } else {
-        const isDarkMode = document.body.classList.contains('ba-dark-mode') ||
-            (typeof isPageAlreadyInMode === 'function' && isPageAlreadyInMode('dark'));
-        const linkBackground = isDarkMode ? '#fff176' : '#000000';
-        const linkColor = isDarkMode ? '#22223b' : '#fff176';
+        const linkBackground = color || '#000000';
+        const linkColor = getContrastingTextColor(linkBackground);
 
         document.documentElement.style.setProperty('--ba-link-highlight-bg', linkBackground);
         document.documentElement.style.setProperty('--ba-link-highlight-color', linkColor);
@@ -275,15 +295,6 @@ function toggleLinkHighlights(color) {
         links.forEach(link => {
             if (isElementInWidget(link)) return;
             link.classList.add('ba-link-highlight');
-            link.style.setProperty('background-color', linkBackground, 'important');
-            link.style.setProperty('color', linkColor, 'important');
-            link.style.setProperty('-webkit-text-fill-color', linkColor, 'important');
-
-            const descendants = link.querySelectorAll('*');
-            descendants.forEach((el) => {
-                el.style.setProperty('color', linkColor, 'important');
-                el.style.setProperty('-webkit-text-fill-color', linkColor, 'important');
-            });
         });
         linksHighlighted = true;
         return true;
@@ -294,15 +305,6 @@ function clearLinkHighlights() {
     const links = document.querySelectorAll('a.ba-link-highlight');
     links.forEach(link => {
         link.classList.remove('ba-link-highlight');
-        link.style.removeProperty('background-color');
-        link.style.removeProperty('color');
-        link.style.removeProperty('-webkit-text-fill-color');
-
-        const descendants = link.querySelectorAll('*');
-        descendants.forEach((el) => {
-            el.style.removeProperty('color');
-            el.style.removeProperty('-webkit-text-fill-color');
-        });
     });
     document.documentElement.style.removeProperty('--ba-link-highlight-bg');
     document.documentElement.style.removeProperty('--ba-link-highlight-color');
