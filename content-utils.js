@@ -18,6 +18,7 @@ function resetParentSafeStyles(el) {
     }
 }
 
+
 function setCursor(size) {
     let styleTag = document.getElementById('ba-cursor-style');
     if (styleTag) styleTag.remove();
@@ -71,11 +72,8 @@ let contrastEffects = {
     dark: false,
     light: false,
     high: false,
-    custom: false,
     desaturate: false
 };
-
-let customContrastValue = 100;
 
 function ensureContrastStyleTag() {
     let styleTag = document.getElementById('ba-contrast-style');
@@ -108,7 +106,6 @@ function applyContrastEffect(effect, enable) {
     if (contrastEffects.dark) filters.push('brightness(0.5) contrast(1.5)');
     if (contrastEffects.light) filters.push('brightness(1.5) contrast(1.5)');
     if (contrastEffects.high) filters.push('contrast(2)');
-    if (contrastEffects.custom) filters.push(`contrast(${customContrastValue}%)`);
     if (contrastEffects.desaturate) filters.push('grayscale(100%)');
     
     filter = filters.join(' ');
@@ -124,23 +121,14 @@ function applyContrastEffect(effect, enable) {
     }
 }
 
-function setCustomContrast(value) {
-    customContrastValue = value;
-    if (contrastEffects.custom) {
-        applyContrastEffect('custom', true);
-    }
-}
-
 function clearAllContrastEffects() {
     contrastEffects = {
         invert: false,
         dark: false,
         light: false,
         high: false,
-        custom: false,
         desaturate: false
     };
-    customContrastValue = 100;
     document.body.classList.remove('ba-contrast-active');
     document.body.style.removeProperty('--ba-contrast-filter');
 }
@@ -154,7 +142,16 @@ function toggleLinkHighlights(color) {
         links.forEach(link => {
             if (isElementInWidget(link)) return;
             link.classList.add('ba-link-highlight');
-            link.style.backgroundColor = color;
+            link.style.setProperty('background-color', 'black', 'important');
+            link.style.setProperty('color', 'yellow', 'important');
+            link.style.setProperty('padding', '2px 4px', 'important');
+            
+            // Also apply styles to all child elements within the link
+            const allChildren = link.querySelectorAll('*');
+            allChildren.forEach(child => {
+                child.style.setProperty('color', 'yellow', 'important');
+                child.style.setProperty('background-color', 'transparent', 'important');
+            });
         });
         linksHighlighted = true;
         return true;
@@ -165,7 +162,16 @@ function clearLinkHighlights() {
     const links = document.querySelectorAll('a.ba-link-highlight');
     links.forEach(link => {
         link.classList.remove('ba-link-highlight');
-        link.style.backgroundColor = '';
+        link.style.removeProperty('background-color');
+        link.style.removeProperty('color');
+        link.style.removeProperty('padding');
+        
+        // Remove styles from all child elements
+        const allChildren = link.querySelectorAll('*');
+        allChildren.forEach(child => {
+            child.style.removeProperty('color');
+            child.style.removeProperty('background-color');
+        });
     });
     linksHighlighted = false;
 }
@@ -233,7 +239,7 @@ function applyTextSettings(settings) {
             el.style.fontSize = '';
             el.style.lineHeight = '';
             el.style.letterSpacing = '';
-            el.style.fontFamily = '';
+            el.style.removeProperty('font-family');
             el.style.overflow = '';
             el.style.minHeight = '';
             el.style.boxSizing = '';
@@ -253,7 +259,9 @@ function applyTextSettings(settings) {
         if (settings.fontSize !== undefined) el.style.fontSize = settings.fontSize + 'px';
         if (settings.lineHeight !== undefined) el.style.lineHeight = settings.lineHeight;
         if (settings.spacing !== undefined) el.style.letterSpacing = settings.spacing + 'px';
-        if (settings.fontFamily) el.style.fontFamily = settings.fontFamily;
+        if (settings.fontFamily) {
+            el.style.setProperty('font-family', settings.fontFamily, 'important');
+        }
         el.style.overflow = 'visible';
         el.style.minHeight = 'unset';
         el.style.boxSizing = 'border-box';

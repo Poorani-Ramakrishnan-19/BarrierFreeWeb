@@ -4,6 +4,8 @@ function createFloatingAccessWidget() {
     const style = document.createElement('style');
     style.id = 'ba-widget-styles';
     style.textContent = `
+        @import url('https://fonts.googleapis.com/css2?family=Open+Dyslexic:wght@400;700&display=swap');
+        
         body.ba-widget-open {
             font-family: 'Segoe UI', Arial, sans-serif;
         }
@@ -154,6 +156,12 @@ function createFloatingAccessWidget() {
             margin-bottom: 8px;
             padding: 2px;
         }
+        #ba-widget-panel input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #5a7cff;
+        }
         #ba-widget-panel label {
             display: block;
             font-size: 0.9em;
@@ -188,7 +196,16 @@ function createFloatingAccessWidget() {
         .ba-link-highlight {
             border-radius: 2px;
             transition: background-color 0.2s;
+            color: yellow !important;
+            background-color: black !important;
+            display: inline-block !important;
+            padding: 2px 4px !important;
         }
+        .ba-link-highlight * {
+            color: yellow !important;
+            background-color: transparent !important;
+        }
+
         .ba-toggle-btn.active {
             box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4);
         }
@@ -240,7 +257,7 @@ function createFloatingAccessWidget() {
             <div class="ba-setting-grid">
                 <div class="ba-setting-item">
                     <label for="ba-fontFamily">Font Family</label>
-                    <select id="ba-fontFamily"><option value="">Default</option><option value="Arial">Arial</option><option value="Verdana">Verdana</option><option value="Georgia">Georgia</option><option value="Times New Roman">Times</option><option value="OpenDyslexic">OpenDyslexic</option></select>
+                    <select id="ba-fontFamily"><option value="">Default</option><option value="Arial, sans-serif">Arial</option><option value="Verdana, sans-serif">Verdana</option><option value="Georgia, serif">Georgia</option><option value="'Times New Roman', serif">Times New Roman</option><option value="'Open Dyslexic', cursive">Open Dyslexic</option></select>
                 </div>
                 <div class="ba-setting-item">
                     <label for="ba-cursorSize">Cursor Size</label>
@@ -277,10 +294,6 @@ function createFloatingAccessWidget() {
                 <div class="ba-setting-item"><button id="ba-dark-contrast" class="ba-toggle-btn">Dark Contrast</button></div>
                 <div class="ba-setting-item"><button id="ba-light-contrast" class="ba-toggle-btn">Light Contrast</button></div>
                 <div class="ba-setting-item"><button id="ba-high-contrast" class="ba-toggle-btn">High Contrast</button></div>
-                <div class="ba-setting-item">
-                    <label for="ba-custom-contrast">Custom Contrast <strong><span id="ba-custom-contrast-value">100</span>%</strong></label>
-                    <input type="range" id="ba-custom-contrast" min="50" max="200" value="100" step="5">
-                </div>
                 <div class="ba-setting-item"><button id="ba-desaturate" class="ba-toggle-btn">Desaturate</button></div>
             </div>
             </div>
@@ -466,8 +479,6 @@ function createFloatingAccessWidget() {
         fontFamily.value = '';
         cursorSize.value = 'default';
         highlightColor.value = '#fff176';
-        customContrast.value = 100;
-        customContrastValue.textContent = '100';
         updateValues();
         applyTextSettings({ reset: true });
         document.getElementById('ba-highlight-links').textContent = 'Highlight Links';
@@ -511,17 +522,6 @@ function createFloatingAccessWidget() {
         applyContrastEffect('desaturate', isActive);
     });
 
-    const customContrast = document.getElementById('ba-custom-contrast');
-    const customContrastValue = document.getElementById('ba-custom-contrast-value');
-
-    customContrast.addEventListener('input', function() {
-        customContrastValue.textContent = this.value;
-        setCustomContrast(parseInt(this.value, 10));
-        if (!contrastEffects.custom) {
-            contrastEffects.custom = true;
-            applyContrastEffect('custom', true);
-        }
-    });
 
     document.addEventListener('click', (event) => {
         if (!panel.contains(event.target) && !icon.contains(event.target)) {
