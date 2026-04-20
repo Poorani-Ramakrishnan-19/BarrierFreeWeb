@@ -39,33 +39,6 @@ function setCursor(size) {
     }
 }
 
-let baLastSelectionRange = null;
-
-document.addEventListener('selectionchange', () => {
-    const selection = window.getSelection();
-    if (!selection || selection.isCollapsed || selection.rangeCount === 0) return;
-
-    const currentRange = selection.getRangeAt(0);
-    if (currentRange.collapsed) return;
-
-    const ancestor = currentRange.commonAncestorContainer;
-    if (ancestor.nodeType === Node.ELEMENT_NODE && ancestor.closest && ancestor.closest('.ba-widget-element')) {
-        return;
-    }
-
-    baLastSelectionRange = currentRange.cloneRange();
-});
-
-function getActiveRange() {
-    const selection = window.getSelection();
-    if (selection && !selection.isCollapsed && selection.rangeCount > 0) {
-        return selection.getRangeAt(0).cloneRange();
-    }
-    return baLastSelectionRange ? baLastSelectionRange.cloneRange() : null;
-}
-
-let linksHighlighted = false;
-
 let contrastEffects = {
     invert: false,
     darkContrast: false,
@@ -88,24 +61,6 @@ function ensureContrastStyleTag() {
     styleTag.textContent = `
         body.ba-contrast-active > *:not(#ba-access-widget):not(#ba-widget-panel) {
             filter: var(--ba-contrast-filter, none) !important;
-        }
-
-        a.ba-link-highlight,
-        a.ba-link-highlight:link,
-        a.ba-link-highlight:visited,
-        a.ba-link-highlight:hover,
-        a.ba-link-highlight:active,
-        a.ba-link-highlight:focus {
-            background-color: var(--ba-link-highlight-bg, #000000) !important;
-            color: var(--ba-link-highlight-color, #fff176) !important;
-            -webkit-text-fill-color: var(--ba-link-highlight-color, #fff176) !important;
-        }
-
-        a.ba-link-highlight *,
-        a.ba-link-highlight *:before,
-        a.ba-link-highlight *:after {
-            color: var(--ba-link-highlight-color, #fff176) !important;
-            -webkit-text-fill-color: var(--ba-link-highlight-color, #fff176) !important;
         }
 
         body.ba-dark-mode > *:not(#ba-access-widget):not(#ba-widget-panel),
@@ -270,88 +225,6 @@ function clearAllContrastEffects() {
     }
 }
 
-function getContrastingTextColor(hexColor) {
-    const hex = (hexColor || '').replace(/^#/, '');
-    if (hex.length < 6) return '#101418';
-    const r = parseInt(hex.slice(0, 2), 16);
-    const g = parseInt(hex.slice(2, 4), 16);
-    const b = parseInt(hex.slice(4, 6), 16);
-    const luminance = getLuminance([r, g, b]);
-    return luminance !== null && luminance > 0.35 ? '#101418' : '#f5f7fa';
-}
-
-function toggleLinkHighlights(color) {
-    if (linksHighlighted) {
-        clearLinkHighlights();
-        return false;
-    } else {
-        const linkBackground = color || '#000000';
-        const linkColor = getContrastingTextColor(linkBackground);
-
-        document.documentElement.style.setProperty('--ba-link-highlight-bg', linkBackground);
-        document.documentElement.style.setProperty('--ba-link-highlight-color', linkColor);
-
-        const links = document.querySelectorAll('a');
-        links.forEach(link => {
-            if (isElementInWidget(link)) return;
-            link.classList.add('ba-link-highlight');
-        });
-        linksHighlighted = true;
-        return true;
-    }
-}
-
-function clearLinkHighlights() {
-    const links = document.querySelectorAll('a.ba-link-highlight');
-    links.forEach(link => {
-        link.classList.remove('ba-link-highlight');
-    });
-    document.documentElement.style.removeProperty('--ba-link-highlight-bg');
-    document.documentElement.style.removeProperty('--ba-link-highlight-color');
-    linksHighlighted = false;
-}
-
-function clearHighlights() {
-    const highlights = document.querySelectorAll('span.ba-text-highlight');
-    highlights.forEach(highlight => {
-        const parent = highlight.parentNode;
-        while (highlight.firstChild) {
-            parent.insertBefore(highlight.firstChild, highlight);
-        }
-        parent.removeChild(highlight);
-    });
-}
-
-function highlightSelection(color) {
-    const range = getActiveRange();
-    if (!range || range.collapsed) return;
-
-    const selection = window.getSelection();
-    selection.removeAllRanges();
-    selection.addRange(range);
-
-    for (let i = selection.rangeCount - 1; i >= 0; i--) {
-        const r = selection.getRangeAt(i);
-        if (r.collapsed) continue;
-
-        const span = document.createElement('span');
-        span.classList.add('ba-text-highlight');
-        span.style.backgroundColor = color;
-        span.style.color = 'inherit';
-
-        try {
-            r.surroundContents(span);
-        } catch (e) {
-            const contents = r.extractContents();
-            span.appendChild(contents);
-            r.insertNode(span);
-        }
-    }
-
-    selection.removeAllRanges();
-    baLastSelectionRange = null;
-}
-
 function isElementInWidget(el) {
     let current = el;
     while (current) {
@@ -382,8 +255,6 @@ function applyTextSettings(settings) {
             el.style.whiteSpace = '';
             resetParentSafeStyles(el);
         });
-        clearHighlights();
-        clearLinkHighlights();
         clearAllContrastEffects();
         setCursor(null);
         return;
@@ -407,13 +278,5 @@ function applyTextSettings(settings) {
 }
 
 chrome.runtime.onMessage.addListener((settings) => {
-    if (settings && settings.highlightClear) {
-        clearHighlights();
-        return;
-    }
-    if (settings && settings.highlight) {
-        highlightSelection(settings.color || '#fff176');
-        return;
-    }
     applyTextSettings(settings);
 });

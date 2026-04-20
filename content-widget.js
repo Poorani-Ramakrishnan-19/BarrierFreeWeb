@@ -285,10 +285,6 @@ function createFloatingAccessWidget() {
             display: none;
             margin-top: 8px;
         }
-        .ba-link-highlight {
-            border-radius: 2px;
-            transition: background-color 0.2s;
-        }
         .ba-toggle-btn.active {
             box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4);
         }
@@ -352,22 +348,6 @@ function createFloatingAccessWidget() {
                     <select id="ba-cursorSize"><option value="default">Default</option><option value="large">Large</option><option value="xlarge">Extra Large</option></select>
                 </div>
             </div>
-            </div>
-        </div>
-
-        <div class="ba-group collapsed" data-section="highlight">
-            <button type="button" class="ba-group-toggle" aria-expanded="false">
-                <span class="ba-group-title">Highlight</span>
-                <span class="ba-group-indicator" aria-hidden="true">+</span>
-            </button>
-            <div class="ba-group-content">
-            <div style="display:flex; gap:6px; margin-bottom:8px;">
-                <button id="ba-highlight-links" style="flex:1;">Highlight Links</button>
-            </div>
-            <label for="ba-highlightColor">Highlight Color</label>
-            <input id="ba-highlightColor" type="color" value="#fff176">
-            <button id="ba-highlight" style="width:100%; margin-top:8px;">Highlight Selection</button>
-            <button id="ba-clearHighlights" class="secondary" style="width:100%; margin-top:4px;">Clear Highlights</button>
             </div>
         </div>
 
@@ -550,7 +530,6 @@ function createFloatingAccessWidget() {
     const spacing = document.getElementById('ba-spacing');
     const fontFamily = document.getElementById('ba-fontFamily');
     const cursorSize = document.getElementById('ba-cursorSize');
-    const highlightColor = document.getElementById('ba-highlightColor');
 
     const fontSizeValue = document.getElementById('ba-fontSize-value');
     const lineHeightValue = document.getElementById('ba-lineHeight-value');
@@ -596,27 +575,13 @@ function createFloatingAccessWidget() {
         spacing.value = 0;
         fontFamily.value = '';
         cursorSize.value = 'default';
-        highlightColor.value = '#fff176';
         customContrast.value = 100;
         customContrastValue.textContent = '100';
         updateValues();
         applyTextSettings({ reset: true });
-        document.getElementById('ba-highlight-links').textContent = 'Highlight Links';
         currentAdjustModeIndex = 0;
         setActiveContrastMode('none');
     });
-
-    document.getElementById('ba-highlight').addEventListener('click', () => {
-        highlightSelection(highlightColor.value || '#fff176');
-    });
-
-    document.getElementById('ba-highlight-links').addEventListener('click', () => {
-        const isHighlighted = toggleLinkHighlights(highlightColor.value || '#fff176');
-        const button = document.getElementById('ba-highlight-links');
-        button.textContent = isHighlighted ? 'Unhighlight Links' : 'Highlight Links';
-    });
-
-    document.getElementById('ba-clearHighlights').addEventListener('click', clearHighlights);
 
     const contrastModeLabels = {
         none: 'None',
