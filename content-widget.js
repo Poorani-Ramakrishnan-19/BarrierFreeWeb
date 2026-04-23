@@ -1,223 +1,27 @@
 function createFloatingAccessWidget() {
     if (document.getElementById('ba-access-widget')) return;
 
+    // Load external CSS
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = chrome.runtime.getURL('assets/widget.css');
+    document.head.appendChild(link);
+
     const style = document.createElement('style');
     style.id = 'ba-widget-styles';
-    style.textContent = `
-        @import url('https://fonts.googleapis.com/css2?family=Open+Dyslexic:wght@400;700&display=swap');
-        
-        body.ba-widget-open {
-            font-family: 'Segoe UI', Arial, sans-serif;
-        }
-        #ba-access-widget {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #5a7cff, #3a5ad7);
-            border: 2px solid white;
-            box-shadow: 0 4px 16px rgba(60, 60, 90, 0.25);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2147483647;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        #ba-access-widget:hover {
-            box-shadow: 0 8px 26px rgba(60, 60, 90, 0.45);
-            transform: translateY(-2px) scale(1.28);
-        }
-        #ba-access-widget:hover #ba-access-widget-img {
-            transform: scale(1.35);
-        }
-
-        #ba-widget-panel {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            width: 320px;
-            max-height: calc(100vh - 110px);
-            background: #ffffff;
-            border: 1px solid #dbe2ef;
-            border-radius: 14px;
-            box-shadow: 0 18px 40px rgba(20, 24, 51, 0.18);
-            z-index: 2147483647;
-            padding: 14px;
-            display: none;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            color: #1f2a44;
-            overflow-y: auto;
-            overflow-x: hidden;
-            scrollbar-width: thin;
-            scrollbar-color: #93a3c9 #eef3ff;
-        }
-        #ba-widget-panel::-webkit-scrollbar {
-            width: 8px;
-        }
-        #ba-widget-panel::-webkit-scrollbar-track {
-            background: #eef3ff;
-            border-radius: 999px;
-        }
-        #ba-widget-panel::-webkit-scrollbar-thumb {
-            background: #93a3c9;
-            border-radius: 999px;
-        }
-        #ba-widget-panel h3 {
-            margin: 0 0 10px;
-            font-size: 1rem;
-            font-weight: 700;
-            color: #1f2a44;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-        }
-        #ba-widget-panel .ba-group {
-            margin-bottom: 10px;
-            background: #f6f8fd;
-            border: 1px solid #e3e9f5;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        #ba-widget-panel .ba-group-toggle {
-            width: 100%;
-            margin: 0;
-            border-radius: 0;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px;
-            background: transparent;
-            color: #3a4b72;
-            cursor: pointer;
-        }
-        #ba-widget-panel .ba-group-toggle:hover {
-            background: #edf2ff;
-        }
-        #ba-widget-panel .ba-group-title {
-            margin: 0;
-            font-size: 0.86rem;
-            font-weight: 650;
-            color: #3a4b72;
-            text-align: left;
-        }
-        #ba-widget-panel .ba-group-indicator {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #526389;
-            line-height: 1;
-        }
-        #ba-widget-panel .ba-group-content {
-            padding: 8px 10px 10px;
-        }
-        #ba-widget-panel .ba-group.collapsed .ba-group-content {
-            display: none;
-        }
-        #ba-widget-panel .ba-setting-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-        #ba-widget-panel .ba-setting-item {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        #ba-widget-panel .ba-setting-item label {
-            font-size: 0.78rem;
-            color: #59687f;
-        }
-        #ba-widget-panel input[type="range"] {
-            width: 100%;
-            margin: 0 0 6px 0;
-            accent-color: #5a7cff;
-            height: 3px;
-            background: #e2e8f0;
-            border-radius: 2px;
-            outline: none;
-        }
-        #ba-widget-panel select {
-            width: 100%;
-            padding: 6px 8px;
-            border-radius: 6px;
-            border: 1px solid #cbd5e1;
-            background: #f4f7fa;
-            font-size: 0.95em;
-            color: #22223b;
-            margin-bottom: 10px;
-        }
-        #ba-widget-panel input[type="color"] {
-            width: 100%;
-            height: 30px;
-            border-radius: 6px;
-            border: 1px solid #cbd5e1;
-            margin-bottom: 8px;
-            padding: 2px;
-        }
-        #ba-widget-panel input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            accent-color: #5a7cff;
-        }
-        #ba-widget-panel label {
-            display: block;
-            font-size: 0.9em;
-            color: #4a4a6a;
-            margin-bottom: 4px;
-        }
-        #ba-widget-panel button {
-            width: 100%;
-            padding: 8px;
-            margin-top: 6px;
-            border-radius: 8px;
-            border: none;
-            background: linear-gradient(90deg, #5a7cff 0%, #3a5ad7 100%);
-            color: #fff;
-            font-weight: 600;
-            font-size: 0.95em;
-            cursor: pointer;
-            transition: background 0.2s, box-shadow 0.2s;
-        }
-        #ba-widget-panel button:hover {
-            background: linear-gradient(90deg, #3a5ad7 0%, #5a7cff 100%);
-        }
-        #ba-widget-panel button.secondary {
-            background: #fff;
-            color: #5a7cff;
-            border: 1.5px solid #5a7cff;
-            margin-top: 4px;
-        }
-        #ba-widget-panel button.secondary:hover {
-            background: #f8fafc;
-        }
-        .ba-link-highlight {
-            border-radius: 2px;
-            transition: background-color 0.2s;
-            color: yellow !important;
-            background-color: black !important;
-            display: inline-block !important;
-            padding: 2px 4px !important;
-        }
-        .ba-link-highlight * {
-            color: yellow !important;
-            background-color: transparent !important;
-        }
-
-        .ba-toggle-btn.active {
-            box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4);
-        }
-    `;
+    style.textContent = '';
     document.head.appendChild(style);
 
     const icon = document.createElement('div');
     icon.id = 'ba-access-widget';
     icon.className = 'ba-widget-element';
-    icon.title = 'Barrier Free Web';
+    icon.title = 'Barrier Free Web - Accessibility Controls';
+    icon.setAttribute('role', 'button');
+    icon.setAttribute('tabindex', '0');
+    icon.setAttribute('aria-label', 'Accessibility Controls - Press Enter or Space to open');
+    
     icon.innerHTML = `
-        <img id="ba-access-widget-img" src="${chrome.runtime.getURL('BarrierFreeWeb_Icon.png')}" alt="BarrierFreeWeb" style="width:100%; height:100%; object-fit:contain; border-radius:50%; transition: transform 0.2s ease;" />
+        <img src="${chrome.runtime.getURL('images/Robot_gif.gif')}" alt="BarrierFreeWeb Accessibility Controls" style="width: 100%; height: 100%; object-fit: contain;" />
     `;
 
     const panel = document.createElement('div');
@@ -225,6 +29,38 @@ function createFloatingAccessWidget() {
     panel.className = 'ba-widget-element';
     panel.innerHTML = `
         <h3>Accessibility Controls</h3>
+        
+        <!-- Quick Presets Section -->
+        <div class="ba-group" data-section="presets">
+            <button type="button" class="ba-group-toggle" aria-expanded="true" aria-label="Quick Presets">
+                <span class="ba-group-title">Quick Presets</span>
+                <span class="ba-group-indicator" aria-hidden="true">-</span>
+            </button>
+            <div class="ba-group-content">
+                <div class="ba-preset-grid">
+                    <button type="button" class="ba-preset-btn" data-preset="low-vision" aria-label="Low Vision preset" title="Optimized for low vision">👁 Low Vision</button>
+                    <button type="button" class="ba-preset-btn" data-preset="dark-mode" aria-label="Dark Mode preset" title="Dark background, light text">🌙 Dark Mode</button>
+                    <button type="button" class="ba-preset-btn" data-preset="dyslexia" aria-label="Dyslexia Friendly preset" title="OpenDyslexic font, increased spacing">🧠 Dyslexia</button>
+                    <button type="button" class="ba-preset-btn" data-preset="large-text" aria-label="Large Text preset" title="Larger fonts and spacing">👵 Large Text</button>
+                </div>
+                <p style="font-size: 0.8rem; color: #666; margin-top: 8px; margin-bottom: 0;">💡 Tip: Customize further below</p>
+            </div>
+        </div>
+
+        <!-- Theme Toggle Section -->
+        <div class="ba-group" data-section="theme">
+            <button type="button" class="ba-group-toggle" aria-expanded="true" aria-label="Theme settings">
+                <span class="ba-group-title">Theme</span>
+                <span class="ba-group-indicator" aria-hidden="true">-</span>
+            </button>
+            <div class="ba-group-content">
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" class="ba-theme-btn ba-theme-btn-light" id="ba-theme-light" aria-pressed="true" aria-label="Light theme">☀️ Light</button>
+                    <button type="button" class="ba-theme-btn ba-theme-btn-dark" id="ba-theme-dark" aria-pressed="false" aria-label="Dark theme">🌙 Dark</button>
+                </div>
+            </div>
+        </div>
+
         <div class="ba-group" data-section="text-dimensions">
             <button type="button" class="ba-group-toggle" aria-expanded="true">
                 <span class="ba-group-title">Text Dimensions</span>
@@ -233,23 +69,24 @@ function createFloatingAccessWidget() {
             <div class="ba-group-content">
             <div class="ba-setting-grid">
                 <div class="ba-setting-item">
-                    <label for="ba-fontSize">Font Size <strong><span id="ba-fontSize-value">16</span>px</strong></label>
-                    <input type="range" id="ba-fontSize" min="12" max="40" value="16">
+                    <label for="ba-fontSize">Font Size <strong><span id="ba-fontSize-label">Normal</span></strong></label>
+                    <input type="range" id="ba-fontSize" min="12" max="40" value="16" aria-describedby="ba-fontSize-help">
+                    <span id="ba-fontSize-help" style="font-size: 0.75rem; color: #888;">12px (Tiny) to 40px (Jumbo)</span>
                 </div>
                 <div class="ba-setting-item">
                     <label for="ba-lineHeight">Line Height <strong><span id="ba-lineHeight-value">1.5</span></strong></label>
-                    <input type="range" id="ba-lineHeight" min="1" max="3" step="0.1" value="1.5">
+                    <input type="range" id="ba-lineHeight" min="1" max="3" step="0.1" value="1.5" aria-label="Line height, adjusts spacing between lines">
                 </div>
                 <div class="ba-setting-item">
                     <label for="ba-spacing">Letter Spacing <strong><span id="ba-spacing-value">0</span>px</strong></label>
-                    <input type="range" id="ba-spacing" min="0" max="5" step="0.1" value="0">
+                    <input type="range" id="ba-spacing" min="0" max="5" step="0.1" value="0" aria-label="Letter spacing, adjusts space between characters">
                 </div>
             </div>
             </div>
         </div>
 
         <div class="ba-group collapsed" data-section="typography">
-            <button type="button" class="ba-group-toggle" aria-expanded="false">
+            <button type="button" class="ba-group-toggle" aria-expanded="false" aria-label="Typography options">
                 <span class="ba-group-title">Typography</span>
                 <span class="ba-group-indicator" aria-hidden="true">+</span>
             </button>
@@ -257,50 +94,127 @@ function createFloatingAccessWidget() {
             <div class="ba-setting-grid">
                 <div class="ba-setting-item">
                     <label for="ba-fontFamily">Font Family</label>
-                    <select id="ba-fontFamily"><option value="">Default</option><option value="Arial, sans-serif">Arial</option><option value="Verdana, sans-serif">Verdana</option><option value="Georgia, serif">Georgia</option><option value="'Times New Roman', serif">Times New Roman</option><option value="'Open Dyslexic', cursive">Open Dyslexic</option></select>
+                    <select id="ba-fontFamily" aria-label="Select font family for text">
+                        <option value="">Default (System)</option>
+                        <option value="Arial, sans-serif">Arial (Sans-serif)</option>
+                        <option value="Verdana, sans-serif">Verdana (Clean)</option>
+                        <option value="Georgia, serif">Georgia (Serif)</option>
+                        <option value="'Times New Roman', serif">Times New Roman (Classic)</option>
+                        <option value="'Open Dyslexic', cursive">Open Dyslexic (Dyslexia-friendly)</option>
+                    </select>
                 </div>
                 <div class="ba-setting-item">
                     <label for="ba-cursorSize">Cursor Size</label>
-                    <select id="ba-cursorSize"><option value="default">Default</option><option value="large">Large</option><option value="xlarge">Extra Large</option></select>
+                    <select id="ba-cursorSize" aria-label="Select cursor size">
+                        <option value="default">Default</option>
+                        <option value="large">Large</option>
+                        <option value="xlarge">Extra Large</option>
+                    </select>
                 </div>
             </div>
             </div>
         </div>
 
         <div class="ba-group collapsed" data-section="highlight">
-            <button type="button" class="ba-group-toggle" aria-expanded="false">
+            <button type="button" class="ba-group-toggle" aria-expanded="false" aria-label="Highlight options">
                 <span class="ba-group-title">Highlight</span>
                 <span class="ba-group-indicator" aria-hidden="true">+</span>
             </button>
             <div class="ba-group-content">
-            <div style="display:flex; gap:6px; margin-bottom:8px;">
-                <button id="ba-highlight-links" style="flex:1;">Highlight Links</button>
-            </div>
-            <label for="ba-highlightColor">Highlight Color</label>
-            <input id="ba-highlightColor" type="color" value="#fff176">
-            <button id="ba-highlight" style="width:100%; margin-top:8px;">Highlight Selection</button>
-            <button id="ba-clearHighlights" class="secondary" style="width:100%; margin-top:4px;">Clear Highlights</button>
+                <div style="display:flex; gap:6px; margin-bottom:8px;">
+                    <button id="ba-highlight-links" style="flex:1;" aria-label="Highlight all links on the page">🔗 Highlight Links</button>
+                </div>
+                <label for="ba-highlightColor">🎨 Highlight Color</label>
+                <input id="ba-highlightColor" type="color" value="#fff176" aria-label="Choose highlight color">
+                <button id="ba-highlight" style="width:100%; margin-top:8px;" aria-label="Highlight selected text with chosen color">✏️ Highlight Selection</button>
+                <button id="ba-clearHighlights" class="secondary" style="width:100%; margin-top:4px;" aria-label="Remove all highlights">🗑️ Clear Highlights</button>
             </div>
         </div>
 
         <div class="ba-group collapsed" data-section="contrast">
-            <button type="button" class="ba-group-toggle" aria-expanded="false">
+            <button type="button" class="ba-group-toggle" aria-expanded="false" aria-label="Contrast modes">
                 <span class="ba-group-title">Contrast</span>
                 <span class="ba-group-indicator" aria-hidden="true">+</span>
             </button>
             <div class="ba-group-content">
-            <div class="ba-setting-grid">
-                <div class="ba-setting-item"><button id="ba-invert-colors" class="ba-toggle-btn">Invert Colors</button></div>
-                <div class="ba-setting-item"><button id="ba-dark-contrast" class="ba-toggle-btn">Dark Contrast</button></div>
-                <div class="ba-setting-item"><button id="ba-light-contrast" class="ba-toggle-btn">Light Contrast</button></div>
-                <div class="ba-setting-item"><button id="ba-high-contrast" class="ba-toggle-btn">High Contrast</button></div>
-                <div class="ba-setting-item"><button id="ba-desaturate" class="ba-toggle-btn">Desaturate</button></div>
-            </div>
+                <fieldset class="ba-contrast-fieldset">
+                    <legend style="font-size: 0.8rem; color: #666; margin-bottom: 8px;">Select one mode:</legend>
+                    <div class="ba-contrast-options">
+                        <label class="ba-contrast-option">
+                            <input type="radio" name="ba-contrast-mode" value="none" checked aria-label="No contrast mode">
+                            <div class="ba-contrast-text">
+                                <span class="ba-contrast-label">None</span>
+                                <span class="ba-contrast-help">Default colors</span>
+                            </div>
+                        </label>
+                        <label class="ba-contrast-option">
+                            <input type="radio" name="ba-contrast-mode" value="invert" aria-label="Invert colors mode">
+                            <div class="ba-contrast-text">
+                                <span class="ba-contrast-label">🔄 Invert</span>
+                                <span class="ba-contrast-help">Reversed colors</span>
+                            </div>
+                        </label>
+                        <label class="ba-contrast-option">
+                            <input type="radio" name="ba-contrast-mode" value="dark" aria-label="Dark contrast mode">
+                            <div class="ba-contrast-text">
+                                <span class="ba-contrast-label">🌙 Dark</span>
+                                <span class="ba-contrast-help">Dark background, light text</span>
+                            </div>
+                        </label>
+                        <label class="ba-contrast-option">
+                            <input type="radio" name="ba-contrast-mode" value="light" aria-label="Light contrast mode">
+                            <div class="ba-contrast-text">
+                                <span class="ba-contrast-label">☀️ Light</span>
+                                <span class="ba-contrast-help">Light background, dark text</span>
+                            </div>
+                        </label>
+                        <label class="ba-contrast-option">
+                            <input type="radio" name="ba-contrast-mode" value="high" aria-label="High contrast mode">
+                            <div class="ba-contrast-text">
+                                <span class="ba-contrast-label">⚡ High</span>
+                                <span class="ba-contrast-help">Maximum contrast</span>
+                            </div>
+                        </label>
+                        <label class="ba-contrast-option">
+                            <input type="radio" name="ba-contrast-mode" value="desaturate" aria-label="Desaturate mode">
+                            <div class="ba-contrast-text">
+                                <span class="ba-contrast-label">⚪ Desaturate</span>
+                                <span class="ba-contrast-help">Grayscale colors</span>
+                            </div>
+                        </label>
+                    </div>
+                </fieldset>
             </div>
         </div>
 
-        <button id="ba-reset" class="secondary" style="width:100%; margin-top:4px;">Reset All</button>
+        <!-- Reset Section -->
+        <div class="ba-group" data-section="reset">
+            <button type="button" class="ba-group-toggle" aria-expanded="false" aria-label="Reset options">
+                <span class="ba-group-title">Reset</span>
+                <span class="ba-group-indicator" aria-hidden="true">+</span>
+            </button>
+            <div class="ba-group-content">
+                <button id="ba-reset-section" class="ba-reset-btn secondary" aria-label="Reset current section">Reset Section</button>
+                <button id="ba-reset-all" class="ba-reset-btn secondary" aria-label="Reset all settings">Reset All</button>
+            </div>
+        </div>
     `;
+
+    // Confirmation Dialog
+    const dialogContainer = document.createElement('div');
+    dialogContainer.id = 'ba-dialog-overlay';
+    dialogContainer.className = 'ba-widget-element ba-dialog-hidden';
+    dialogContainer.innerHTML = `
+        <div class="ba-dialog" role="alertdialog" aria-modal="true" aria-labelledby="ba-dialog-title">
+            <h2 id="ba-dialog-title">Reset All Settings?</h2>
+            <p>This will reset all accessibility settings to their default values. This action cannot be undone.</p>
+            <div class="ba-dialog-buttons">
+                <button id="ba-dialog-cancel" class="ba-btn-cancel">Cancel</button>
+                <button id="ba-dialog-confirm" class="ba-btn-confirm">Reset All</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(dialogContainer);
 
     let isDragging = false;
     let hasDragged = false;
@@ -412,10 +326,31 @@ function createFloatingAccessWidget() {
         }
         event.stopPropagation();
         panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        if (panel.style.display === 'block') {
+            // Focus the first focusable element in the panel
+            const firstFocusable = panel.querySelector('button, input, select, [tabindex]');
+            if (firstFocusable) firstFocusable.focus();
+        }
+    });
+
+    // Keyboard support for icon button
+    icon.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            event.stopPropagation();
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+            if (panel.style.display === 'block') {
+                const firstFocusable = panel.querySelector('button, input, select, [tabindex]');
+                if (firstFocusable) firstFocusable.focus();
+            }
+        }
     });
 
     document.body.appendChild(icon);
     document.body.appendChild(panel);
+
+    // Track the last opened section for Reset Section button
+    let lastOpenedSection = null;
 
     panel.querySelectorAll('.ba-group-toggle').forEach((toggle) => {
         toggle.addEventListener('click', () => {
@@ -424,6 +359,11 @@ function createFloatingAccessWidget() {
 
             const isCollapsed = group.classList.toggle('collapsed');
             toggle.setAttribute('aria-expanded', String(!isCollapsed));
+
+            // Track which section was opened
+            if (!isCollapsed) {
+                lastOpenedSection = group.getAttribute('data-section');
+            }
 
             const indicator = toggle.querySelector('.ba-group-indicator');
             if (indicator) indicator.textContent = isCollapsed ? '+' : '-';
@@ -445,12 +385,155 @@ function createFloatingAccessWidget() {
     const cursorSize = document.getElementById('ba-cursorSize');
     const highlightColor = document.getElementById('ba-highlightColor');
 
-    const fontSizeValue = document.getElementById('ba-fontSize-value');
+    // Preset Configurations
+    const presetConfigs = {
+        'low-vision': {
+            fontSize: 20,
+            lineHeight: 1.8,
+            spacing: 0.2,
+            fontFamily: 'Arial, sans-serif',
+            contrast: 'high'
+        },
+        'dark-mode': {
+            fontSize: 16,
+            lineHeight: 1.6,
+            spacing: 0,
+            fontFamily: '',
+            contrast: 'dark'
+        },
+        'dyslexia': {
+            fontSize: 18,
+            lineHeight: 1.8,
+            spacing: 0.2,
+            fontFamily: "'Open Dyslexic', cursive",
+            contrast: 'none'
+        },
+        'large-text': {
+            fontSize: 24,
+            lineHeight: 1.8,
+            spacing: 0.1,
+            fontFamily: '',
+            contrast: 'none'
+        }
+    };
+
+    // Apply preset configuration
+    function applyPreset(presetName) {
+        const config = presetConfigs[presetName];
+        if (!config) return;
+
+        // Update font settings
+        fontSize.value = config.fontSize;
+        lineHeight.value = config.lineHeight;
+        spacing.value = config.spacing;
+        fontFamily.value = config.fontFamily;
+        
+        // Apply settings
+        applyWidgetSettings();
+
+        // Apply contrast if needed
+        if (config.contrast && config.contrast !== 'none') {
+            const radioButton = document.querySelector(`input[name="ba-contrast-mode"][value="${config.contrast}"]`);
+            if (radioButton) {
+                radioButton.checked = true;
+                applyContrastFromRadio(config.contrast);
+            }
+        } else {
+            // Reset to none
+            document.querySelector(`input[name="ba-contrast-mode"][value="none"]`).checked = true;
+            clearAllContrastEffects();
+        }
+
+        // Visual feedback
+        document.querySelectorAll('.ba-preset-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`[data-preset="${presetName}"]`).classList.add('active');
+
+        // Announce to screen readers
+        announceToScreenReader(`${presetName.replace('-', ' ')} preset applied`);
+    }
+
+    // Screen reader announcements
+    function announceToScreenReader(message) {
+        const announcement = document.createElement('div');
+        announcement.setAttribute('role', 'status');
+        announcement.setAttribute('aria-live', 'polite');
+        announcement.setAttribute('aria-atomic', 'true');
+        announcement.style.position = 'absolute';
+        announcement.style.left = '-10000px';
+        announcement.textContent = message;
+        document.body.appendChild(announcement);
+        setTimeout(() => announcement.remove(), 1000);
+    }
+
+    // Theme toggle functions
+    function applyTheme(theme) {
+        const isDark = theme === 'dark';
+        
+        let themeStyles = document.getElementById('ba-theme-styles');
+        if (themeStyles) themeStyles.remove();
+
+        if (isDark) {
+            themeStyles = document.createElement('style');
+            themeStyles.id = 'ba-theme-styles';
+            themeStyles.textContent = `
+                body {
+                    background-color: #1a1a1a !important;
+                    color: #e0e0e0 !important;
+                }
+                body * {
+                    background-color: inherit;
+                    color: inherit;
+                }
+                a { color: #64b5f6 !important; }
+            `;
+            document.head.appendChild(themeStyles);
+        }
+
+        // Update button states
+        document.getElementById('ba-theme-light').setAttribute('aria-pressed', theme === 'light' ? 'true' : 'false');
+        document.getElementById('ba-theme-dark').setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+
+        announceToScreenReader(`${theme} theme applied`);
+    }
+
+    // Contrast radio button handler
+    function applyContrastFromRadio(value) {
+        clearAllContrastEffects();
+        if (value && value !== 'none') {
+            applyContrastEffect(value, true);
+        }
+        announceToScreenReader(`${value} contrast mode applied`);
+    }
+
+    const fontSizeLabel = document.getElementById('ba-fontSize-label');
     const lineHeightValue = document.getElementById('ba-lineHeight-value');
     const spacingValue = document.getElementById('ba-spacing-value');
 
+    // Font size to readable label mapping
+    const fontSizeLabels = {
+        12: 'Tiny',
+        14: 'Small',
+        16: 'Normal',
+        18: 'Large',
+        20: 'Large+',
+        24: 'Extra Large',
+        32: 'Jumbo',
+        40: 'Maximum'
+    };
+
+    function getFontSizeLabel(px) {
+        if (fontSizeLabels[px]) return fontSizeLabels[px];
+        if (px < 14) return 'Tiny';
+        if (px < 18) return 'Small';
+        if (px < 20) return 'Normal';
+        if (px < 24) return 'Large';
+        if (px < 32) return 'Extra Large';
+        return 'Jumbo';
+    }
+
     function updateValues() {
-        fontSizeValue.textContent = fontSize.value;
+        const fontSize = parseInt(document.getElementById('ba-fontSize').value);
+        fontSizeLabel.textContent = getFontSizeLabel(fontSize);
         lineHeightValue.textContent = lineHeight.value;
         spacingValue.textContent = spacing.value;
     }
@@ -472,7 +555,51 @@ function createFloatingAccessWidget() {
     fontFamily.addEventListener('change', applyWidgetSettings);
     cursorSize.addEventListener('change', applyWidgetSettings);
 
-    document.getElementById('ba-reset').addEventListener('click', () => {
+    // Preset buttons
+    document.querySelectorAll('.ba-preset-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const preset = btn.getAttribute('data-preset');
+            applyPreset(preset);
+        });
+    });
+
+    // Theme buttons
+    document.getElementById('ba-theme-light').addEventListener('click', () => {
+        applyTheme('light');
+    });
+    document.getElementById('ba-theme-dark').addEventListener('click', () => {
+        applyTheme('dark');
+    });
+
+    // Contrast radio buttons
+    document.querySelectorAll('input[name="ba-contrast-mode"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            applyContrastFromRadio(e.target.value);
+        });
+    });
+
+    // Reset section button
+    document.getElementById('ba-reset-section').addEventListener('click', () => {
+        if (lastOpenedSection) {
+            resetSection(lastOpenedSection);
+            announceToScreenReader(`${lastOpenedSection} section reset`);
+        } else {
+            announceToScreenReader('No section to reset. Expand a section first.');
+        }
+    });
+
+    // Reset all button with confirmation
+    document.getElementById('ba-reset-all').addEventListener('click', () => {
+        document.getElementById('ba-dialog-overlay').classList.remove('ba-dialog-hidden');
+        document.getElementById('ba-dialog-confirm').focus();
+    });
+
+    // Dialog handlers
+    document.getElementById('ba-dialog-cancel').addEventListener('click', () => {
+        document.getElementById('ba-dialog-overlay').classList.add('ba-dialog-hidden');
+    });
+
+    document.getElementById('ba-dialog-confirm').addEventListener('click', () => {
         fontSize.value = 16;
         lineHeight.value = 1.5;
         spacing.value = 0;
@@ -480,9 +607,46 @@ function createFloatingAccessWidget() {
         cursorSize.value = 'default';
         highlightColor.value = '#fff176';
         updateValues();
+        fontFamily.dispatchEvent(new Event('change'));
         applyTextSettings({ reset: true });
-        document.getElementById('ba-highlight-links').textContent = 'Highlight Links';
-        document.querySelectorAll('.ba-toggle-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.ba-preset-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector('input[name="ba-contrast-mode"][value="none"]').checked = true;
+        applyTheme('light');
+        document.getElementById('ba-dialog-overlay').classList.add('ba-dialog-hidden');
+        announceToScreenReader('All settings have been reset');
+    });
+
+    // Close dialog on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const dialog = document.getElementById('ba-dialog-overlay');
+            if (!dialog.classList.contains('ba-dialog-hidden')) {
+                dialog.classList.add('ba-dialog-hidden');
+                document.getElementById('ba-reset-all').focus();
+            }
+        }
+    });
+
+    // Trap focus in dialog when open
+    document.addEventListener('keydown', (e) => {
+        const dialog = document.getElementById('ba-dialog-overlay');
+        if (!dialog.classList.contains('ba-dialog-hidden') && e.key === 'Tab') {
+            const focusableElements = dialog.querySelectorAll('button');
+            const firstElement = focusableElements[0];
+            const lastElement = focusableElements[focusableElements.length - 1];
+
+            if (e.shiftKey) {
+                if (document.activeElement === firstElement) {
+                    e.preventDefault();
+                    lastElement.focus();
+                }
+            } else {
+                if (document.activeElement === lastElement) {
+                    e.preventDefault();
+                    firstElement.focus();
+                }
+            }
+        }
     });
 
     document.getElementById('ba-highlight').addEventListener('click', () => {
@@ -497,35 +661,21 @@ function createFloatingAccessWidget() {
 
     document.getElementById('ba-clearHighlights').addEventListener('click', clearHighlights);
 
-    document.getElementById('ba-invert-colors').addEventListener('click', function() {
-        const isActive = this.classList.toggle('active');
-        applyContrastEffect('invert', isActive);
-    });
-
-    document.getElementById('ba-dark-contrast').addEventListener('click', function() {
-        const isActive = this.classList.toggle('active');
-        applyContrastEffect('dark', isActive);
-    });
-
-    document.getElementById('ba-light-contrast').addEventListener('click', function() {
-        const isActive = this.classList.toggle('active');
-        applyContrastEffect('light', isActive);
-    });
-
-    document.getElementById('ba-high-contrast').addEventListener('click', function() {
-        const isActive = this.classList.toggle('active');
-        applyContrastEffect('high', isActive);
-    });
-
-    document.getElementById('ba-desaturate').addEventListener('click', function() {
-        const isActive = this.classList.toggle('active');
-        applyContrastEffect('desaturate', isActive);
-    });
-
 
     document.addEventListener('click', (event) => {
         if (!panel.contains(event.target) && !icon.contains(event.target)) {
             panel.style.display = 'none';
+        }
+    });
+
+    // Close panel on Escape key (but not dialog)
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const dialog = document.getElementById('ba-dialog-overlay');
+            // Only close panel if dialog is not open
+            if (dialog.classList.contains('ba-dialog-hidden')) {
+                panel.style.display = 'none';
+            }
         }
     });
 }

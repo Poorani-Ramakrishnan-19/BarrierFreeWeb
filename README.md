@@ -1,70 +1,69 @@
-# BarrierFreeWeb
-A browser accessibility plugin that helps users customize website readability and usability by adjusting text size, spacing, contrast, fonts, cursor size, and motion settings to create a more comfortable browsing experience.
+# BarrierFreeWeb - Accessibility Plugin
 
-**Features**
+A powerful Chrome extension that enhances website accessibility with customizable features for users with different abilities.
 
-**Text & Reading Adjustments**
+## 🚀 Quick Start
 
-1.Increase or decrease text size
+### Installation
 
-2.Adjust line height
+1. **Clone or download** this repository
+2. **Open Chrome** and go to `chrome://extensions/`
+3. **Enable** "Developer mode" (toggle in top right)
+4. **Click** "Load unpacked" and select this folder
+5. **Done!** The accessibility icon will appear on all websites
 
-3.Modify letter spacing
+## ✨ Features
 
-4.Modify word spacing
+- **Quick Presets**: 👁 Low Vision, 🌙 Dark Mode, 🧠 Dyslexia-friendly, 👵 Large Text
+- **Text Controls**: Font size, letter spacing, line height customization
+- **Highlighting Features**: 🔗 Highlight Links, ✏️ Highlight Selection, 🎨 Color Picker, 🗑️ Clear Highlights
+- **Visual Effects**: High contrast, link highlighting, font options
+- **Theme Options**: Multiple color schemes and themes
+- **Accessibility**: Full keyboard navigation support
+- **Settings Persistence**: Your preferences are saved automatically
 
-5.Improve paragraph readability
+## 🆕 Recent Updates
 
-**Dyslexia-Friendly Reading**
+- **Animated Robot Icon**: Replaced static blue icon with animated Robot GIF on dark background for better visibility
+- **Enhanced Highlighting**: Added emoji icons for highlight features (🔗 Links, ✏️ Selection, 🎨 Color, 🗑️ Clear)
+- **Improved Reset Section**: Now correctly resets only the most recently opened section
+- **Better Font Reset**: Font dropdown now properly updates when using Reset All
 
-1.Option to switch to dyslexia-friendly fonts
+## 📖 How to Use
 
-2.Improved spacing for easier reading
+1. Look for the **Robot GIF icon** in the bottom-right corner (on dark background)
+2. **Click it** to open the accessibility controls panel
+3. **Choose a preset** or customize individual settings
+4. **Your settings are saved** in your browser
 
-**Cursor Customization**
+## 📁 Project Structure
 
-1.Increase cursor size
+```
+BarrierFreeWeb/
+├── manifest.json              # Extension configuration
+├── content-widget.js          # UI and widget logic
+├── content-utils.js           # Utility functions
+├── content.js                 # Content script loader
+├── assets/
+│   └── widget.css             # Widget styling
+├── images/
+│   ├── Robot_gif.gif          # Animated Robot icon
+│   └── BarrierFreeWeb_Icon.png  # Fallback icon
+└── README.md                  # This file
+```
 
-2.Improve cursor visibility
+## 🛠️ For Developers
 
-**Purpose**
+See [DEVELOPER.md](DEVELOPER.md) for:
+- Architecture overview
+- Code structure explanation
+- How to modify and extend features
+- Testing and debugging
 
-Barrier-Free Web aims to make the internet more accessible for users with different needs, including:
+## 📝 License
 
-1.Low vision
+MIT License - Feel free to use, modify, and distribute
 
-2.Dyslexia
+## 💬 Support
 
-3.Cognitive disabilities
-
-4.Light sensitivity
-
-5.Motion sensitivity
-
-6.Reading difficulties
-
-The extension helps improve the browsing experience and encourages better alignment with accessibility standards such as WCAG (Web Content Accessibility Guidelines).
-
-**Installation (Development)**
-
-1.Clone the repository
-git clone https://github.com/Poorani-Ramakrishnan-19/BarrierFreeWeb
-
-2.Open your browser and navigate to:
-chrome://extensions/
-
-3.Enable Developer Mode
-
-4.Click Load Unpacked
-
-5.Select the project folder
-
-The extension will now appear in your browser toolbar also a floating widget.
-
-**Technologies Used**
-
-1.JavaScript
-
-2.HTML
-
-3.CSS
+For issues, questions, or suggestions, please open an issue on GitHub.

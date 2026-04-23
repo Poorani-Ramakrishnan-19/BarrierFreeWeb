@@ -14,7 +14,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["BarrierFreeWeb_Icon.png"],
+      "resources": ["assets/widget.css", "images/BarrierFreeWeb_Icon.png", "images/Robot_gif.gif"],
       "matches": ["<all_urls>"]
     }
   ]

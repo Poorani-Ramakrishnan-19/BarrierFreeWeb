@@ -82,8 +82,29 @@ function ensureContrastStyleTag() {
     styleTag = document.createElement('style');
     styleTag.id = 'ba-contrast-style';
     styleTag.textContent = `
-        body.ba-contrast-active > *:not(#ba-access-widget):not(#ba-widget-panel) {
+        body.ba-contrast-active {
             filter: var(--ba-contrast-filter, none) !important;
+        }
+        body.ba-contrast-active #ba-access-widget,
+        body.ba-contrast-active #ba-widget-panel,
+        body.ba-contrast-active #ba-widget-panel * {
+            filter: none !important;
+        }
+        /* Ensure text elements maintain readability during invert */
+        body.ba-invert-active p,
+        body.ba-invert-active span,
+        body.ba-invert-active div,
+        body.ba-invert-active a,
+        body.ba-invert-active h1,
+        body.ba-invert-active h2,
+        body.ba-invert-active h3,
+        body.ba-invert-active h4,
+        body.ba-invert-active h5,
+        body.ba-invert-active h6,
+        body.ba-invert-active li,
+        body.ba-invert-active label,
+        body.ba-invert-active button {
+            color: inherit !important;
         }
     `;
     document.head.appendChild(styleTag);
@@ -102,10 +123,16 @@ function applyContrastEffect(effect, enable) {
     // Build filter string based on active effects
     let filters = [];
     
-    if (contrastEffects.invert) filters.push('invert(100%)');
-    if (contrastEffects.dark) filters.push('brightness(0.5) contrast(1.5)');
-    if (contrastEffects.light) filters.push('brightness(1.5) contrast(1.5)');
-    if (contrastEffects.high) filters.push('contrast(2)');
+    if (contrastEffects.invert) {
+        filters.push('invert(100%)');
+        document.body.classList.add('ba-invert-active');
+    } else {
+        document.body.classList.remove('ba-invert-active');
+    }
+    
+    if (contrastEffects.dark) filters.push('brightness(0.7) contrast(1.3)');
+    if (contrastEffects.light) filters.push('brightness(1.2) contrast(1.2)');
+    if (contrastEffects.high) filters.push('contrast(1.8) brightness(1.05)');
     if (contrastEffects.desaturate) filters.push('grayscale(100%)');
     
     filter = filters.join(' ');
@@ -130,6 +157,7 @@ function clearAllContrastEffects() {
         desaturate: false
     };
     document.body.classList.remove('ba-contrast-active');
+    document.body.classList.remove('ba-invert-active');
     document.body.style.removeProperty('--ba-contrast-filter');
 }
 
@@ -284,3 +312,49 @@ chrome.runtime.onMessage.addListener((settings) => {
     }
     applyTextSettings(settings);
 });
+
+// Reset specific section settings
+function resetSection(sectionName) {
+    const elements = document.querySelectorAll('p, span, div, li, article');
+    
+    switch(sectionName) {
+        case 'text-dimensions':
+            elements.forEach(el => {
+                if (isElementInWidget(el)) return;
+                el.style.fontSize = '';
+                el.style.lineHeight = '';
+                el.style.letterSpacing = '';
+            });
+            break;
+        case 'typography':
+            elements.forEach(el => {
+                if (isElementInWidget(el)) return;
+                el.style.removeProperty('font-family');
+            });
+            setCursor('default');
+            break;
+        case 'highlight':
+            clearHighlights();
+            clearLinkHighlights();
+            break;
+        case 'contrast':
+            clearAllContrastEffects();
+            break;
+        case 'theme':
+            let themeStyles = document.getElementById('ba-theme-styles');
+            if (themeStyles) themeStyles.remove();
+            break;
+        case 'presets':
+            // Reset to defaults
+            elements.forEach(el => {
+                if (isElementInWidget(el)) return;
+                el.style.fontSize = '';
+                el.style.lineHeight = '';
+                el.style.letterSpacing = '';
+                el.style.removeProperty('font-family');
+            });
+            clearAllContrastEffects();
+            setCursor('default');
+            break;
+    }
+}
