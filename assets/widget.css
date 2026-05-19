@@ -20,6 +20,7 @@ body.ba-widget-open {
     z-index: 2147483647;
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    pointer-events: auto;
 }
 
 #ba-access-widget:hover {
@@ -149,6 +150,66 @@ body.ba-widget-open {
     background: #e2e8f0;
     border-radius: 2px;
     outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Range Input Thumb - WebKit */
+#ba-widget-panel input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #5a7cff;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s;
+}
+
+#ba-widget-panel input[type="range"]::-webkit-slider-thumb:hover {
+    background: #3a5ad7;
+    box-shadow: 0 2px 8px rgba(90, 124, 255, 0.3);
+}
+
+/* Range Input Track - WebKit */
+#ba-widget-panel input[type="range"]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 3px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Range Input Thumb - Firefox */
+#ba-widget-panel input[type="range"]::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #5a7cff;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s;
+}
+
+#ba-widget-panel input[type="range"]::-moz-range-thumb:hover {
+    background: #3a5ad7;
+    box-shadow: 0 2px 8px rgba(90, 124, 255, 0.3);
+}
+
+/* Range Input Track - Firefox */
+#ba-widget-panel input[type="range"]::-moz-range-track {
+    background: transparent;
+    border: none;
+}
+
+#ba-widget-panel input[type="range"]::-moz-range-progress {
+    background: #5a7cff;
+    height: 3px;
+    border-radius: 2px;
 }
 
 #ba-widget-panel select {
@@ -496,19 +557,114 @@ body.ba-widget-open {
 }
 
 .ba-link-highlight {
-    border-radius: 2px;
-    transition: background-color 0.2s;
-    color: yellow !important;
-    background-color: black !important;
+    border-radius: 3px;
+    transition: background-color 0.2s, color 0.2s;
+    color: #ffff00 !important;
+    background-color: #000000 !important;
     display: inline-block !important;
-    padding: 2px 4px !important;
+    padding: 2px 6px !important;
+    text-decoration: underline !important;
+    font-weight: bold !important;
 }
 
 .ba-link-highlight * {
-    color: yellow !important;
+    color: #ffff00 !important;
     background-color: transparent !important;
+}
+
+.ba-link-highlight:hover {
+    background-color: #333333 !important;
+    box-shadow: 0 0 4px rgba(255, 255, 0, 0.5) !important;
 }
 
 .ba-toggle-btn.active {
     box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4);
+}
+
+/* ========================================
+ * MASTER WIDGET PROTECTION (HIGHEST PRIORITY)
+ * Ensures widget is NEVER affected by page changes
+ * ======================================== */
+
+/* Master Container Protection */
+#ba-access-widget {
+    color: white !important;
+    background: #1a1a1a !important;
+    filter: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Master Panel Protection */
+#ba-widget-panel {
+    color: #1f2a44 !important;
+    background: #ffffff !important;
+    filter: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* ALL panel contents forced to correct colors */
+#ba-widget-panel,
+#ba-widget-panel h3,
+#ba-widget-panel h4,
+#ba-widget-panel p,
+#ba-widget-panel span,
+#ba-widget-panel div,
+#ba-widget-panel label,
+#ba-widget-panel button,
+#ba-widget-panel a,
+#ba-widget-panel input,
+#ba-widget-panel textarea,
+#ba-widget-panel select,
+.ba-preset-btn,
+.ba-theme-btn,
+.ba-contrast-option,
+.ba-contrast-label,
+.ba-group-title {
+    color: #1f2a44 !important;
+}
+
+/* Override backgrounds in panel */
+#ba-widget-panel,
+.ba-preset-btn,
+.ba-theme-btn,
+.ba-contrast-option {
+    background-color: #f4f7fa !important;
+}
+
+/* Protect widget from page-level CSS changes */
+#ba-access-widget *,
+#ba-widget-panel * {
+    filter: none !important;
+    text-shadow: none !important;
+}
+
+/* Force panel content visibility in any page state */
+body.ba-invert-active #ba-widget-panel,
+body.ba-invert-active #ba-widget-panel *,
+body.ba-dark-active #ba-widget-panel,
+body.ba-dark-active #ba-widget-panel *,
+body.ba-light-active #ba-widget-panel,
+body.ba-light-active #ba-widget-panel *,
+body.ba-high-active #ba-widget-panel,
+body.ba-high-active #ba-widget-panel *,
+body.ba-desaturate-active #ba-widget-panel,
+body.ba-desaturate-active #ba-widget-panel * {
+    color: #1f2a44 !important;
+    background-color: #ffffff !important;
+    border-color: #dbe2ef !important;
+    filter: none !important;
+}
+
+/* Force widget button visibility */
+body.ba-invert-active #ba-access-widget,
+body.ba-dark-active #ba-access-widget,
+body.ba-light-active #ba-access-widget,
+body.ba-high-active #ba-access-widget,
+body.ba-desaturate-active #ba-access-widget {
+    color: white !important;
+    background: #1a1a1a !important;
+    border-color: white !important;
+    filter: none !important;
 }

@@ -1,3 +1,10 @@
+/**
+ * BarrierFreeWeb - Utility Functions
+ * Chrome Extension: Helper functions for accessibility features
+ * Author: Poorani Ramakrishnan
+ * License: MIT
+ */
+
 function applyParentSafeStyles(el) {
     let parent = el.parentElement;
     while (parent && parent !== document.body) {
@@ -90,7 +97,22 @@ function ensureContrastStyleTag() {
         body.ba-contrast-active #ba-widget-panel * {
             filter: none !important;
         }
-        /* Ensure text elements maintain readability during invert */
+        
+        /* ============================================
+         * MASTER WIDGET PROTECTION - ALL MODES
+         * ============================================ */
+        
+        /* Invert Mode - Ensure text visibility */
+        body.ba-invert-active {
+            color: #000 !important;
+            background-color: #fff !important;
+        }
+        body.ba-invert-active * {
+            color: #000 !important;
+            background-color: transparent !important;
+            border-color: #000 !important;
+        }
+        
         body.ba-invert-active p,
         body.ba-invert-active span,
         body.ba-invert-active div,
@@ -103,8 +125,92 @@ function ensureContrastStyleTag() {
         body.ba-invert-active h6,
         body.ba-invert-active li,
         body.ba-invert-active label,
+        body.ba-invert-active button,
+        body.ba-invert-active article,
+        body.ba-invert-active section,
+        body.ba-invert-active nav,
+        body.ba-invert-active header,
+        body.ba-invert-active footer,
+        body.ba-invert-active td,
+        body.ba-invert-active th {
+            color: #000 !important;
+            background-color: transparent !important;
+        }
+        
+        body.ba-invert-active a {
+            color: #0066cc !important;
+            text-decoration: underline !important;
+        }
+        
+        body.ba-invert-active input,
+        body.ba-invert-active textarea,
+        body.ba-invert-active select,
         body.ba-invert-active button {
+            background-color: #fff !important;
+            color: #000 !important;
+            border: 1px solid #000 !important;
+        }
+        
+        /* Exclude widget from ALL contrast modes */
+        #ba-access-widget,
+        #ba-widget-panel,
+        #ba-widget-panel *,
+        #ba-access-widget * {
             color: inherit !important;
+            background-color: transparent !important;
+            border-color: currentColor !important;
+            filter: none !important;
+        }
+        
+        /* Force widget panel colors regardless of page state */
+        #ba-widget-panel {
+            color: #1f2a44 !important;
+            background-color: #ffffff !important;
+            border-color: #dbe2ef !important;
+            filter: none !important;
+        }
+        
+        #ba-widget-panel h3,
+        #ba-widget-panel h4,
+        #ba-widget-panel p,
+        #ba-widget-panel span,
+        #ba-widget-panel div,
+        #ba-widget-panel label,
+        #ba-widget-panel button,
+        #ba-widget-panel a,
+        #ba-widget-panel input,
+        #ba-widget-panel textarea,
+        #ba-widget-panel select,
+        .ba-preset-btn,
+        .ba-theme-btn,
+        .ba-contrast-option,
+        .ba-contrast-label {
+            color: #1f2a44 !important;
+            filter: none !important;
+        }
+        
+        /* Force button colors */
+        #ba-access-widget {
+            color: white !important;
+            background: #1a1a1a !important;
+            border-color: white !important;
+            filter: none !important;
+        }
+        
+        /* Protect widget panel in invert mode */
+        body.ba-invert-active #ba-access-widget,
+        body.ba-invert-active #ba-widget-panel,
+        body.ba-invert-active #ba-widget-panel * {
+            filter: none !important;
+            color: #1f2a44 !important;
+            background-color: #ffffff !important;
+            border-color: #dbe2ef !important;
+        }
+        
+        body.ba-invert-active #ba-access-widget {
+            color: white !important;
+            background: #1a1a1a !important;
+            border-color: white !important;
         }
     `;
     document.head.appendChild(styleTag);
@@ -170,14 +276,17 @@ function toggleLinkHighlights(color) {
         links.forEach(link => {
             if (isElementInWidget(link)) return;
             link.classList.add('ba-link-highlight');
-            link.style.setProperty('background-color', 'black', 'important');
-            link.style.setProperty('color', 'yellow', 'important');
-            link.style.setProperty('padding', '2px 4px', 'important');
+            link.style.setProperty('background-color', '#000000', 'important');
+            link.style.setProperty('color', '#ffff00', 'important');
+            link.style.setProperty('padding', '2px 6px', 'important');
+            link.style.setProperty('border-radius', '3px', 'important');
+            link.style.setProperty('text-decoration', 'underline', 'important');
+            link.style.setProperty('font-weight', 'bold', 'important');
             
             // Also apply styles to all child elements within the link
             const allChildren = link.querySelectorAll('*');
             allChildren.forEach(child => {
-                child.style.setProperty('color', 'yellow', 'important');
+                child.style.setProperty('color', '#ffff00', 'important');
                 child.style.setProperty('background-color', 'transparent', 'important');
             });
         });

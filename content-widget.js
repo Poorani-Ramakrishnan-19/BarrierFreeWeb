@@ -1,3 +1,10 @@
+/**
+ * BarrierFreeWeb - Accessibility Widget
+ * Chrome Extension: Main widget and UI functionality
+ * Author: Poorani Ramakrishnan
+ * License: MIT
+ */
+
 function createFloatingAccessWidget() {
     if (document.getElementById('ba-access-widget')) return;
 
@@ -21,7 +28,7 @@ function createFloatingAccessWidget() {
     icon.setAttribute('aria-label', 'Accessibility Controls - Press Enter or Space to open');
     
     icon.innerHTML = `
-        <img src="${chrome.runtime.getURL('images/Robot_gif.gif')}" alt="BarrierFreeWeb Accessibility Controls" style="width: 100%; height: 100%; object-fit: contain;" />
+        <img src="${chrome.runtime.getURL('images/Robot_gif.gif')}" alt="BarrierFreeWeb Accessibility Controls" style="width: 100%; height: 100%; max-width: 46px; max-height: 46px; object-fit: contain; pointer-events: none; display: block;" />
     `;
 
     const panel = document.createElement('div');
@@ -352,6 +359,9 @@ function createFloatingAccessWidget() {
     // Track the last opened section for Reset Section button
     let lastOpenedSection = null;
 
+    // Track active preset for toggle functionality
+    let activePreset = null;
+
     panel.querySelectorAll('.ba-group-toggle').forEach((toggle) => {
         toggle.addEventListener('click', () => {
             const group = toggle.closest('.ba-group');
@@ -399,7 +409,7 @@ function createFloatingAccessWidget() {
             lineHeight: 1.6,
             spacing: 0,
             fontFamily: '',
-            contrast: 'dark'
+            contrast: 'none'
         },
         'dyslexia': {
             fontSize: 18,
@@ -422,6 +432,40 @@ function createFloatingAccessWidget() {
         const config = presetConfigs[presetName];
         if (!config) return;
 
+        // Toggle functionality: if clicking the same preset, deactivate it
+        if (activePreset === presetName) {
+            console.log('🔄 BarrierFreeWeb: Deactivating preset:', presetName);
+            
+            // Reset to defaults
+            const defaults = {
+                fontSize: 16,
+                lineHeight: 1.5,
+                spacing: 0,
+                fontFamily: '',
+                contrast: 'none'
+            };
+
+            fontSize.value = defaults.fontSize;
+            lineHeight.value = defaults.lineHeight;
+            spacing.value = defaults.spacing;
+            fontFamily.value = defaults.fontFamily;
+            
+            // Reset to none contrast
+            document.querySelector(`input[name="ba-contrast-mode"][value="none"]`).checked = true;
+            applyContrastFromRadio('none');
+
+            // Remove active button styling
+            document.querySelectorAll('.ba-preset-btn').forEach(btn => btn.classList.remove('active'));
+            
+            activePreset = null;
+            applyWidgetSettings();
+            announceToScreenReader(`${presetName.replace('-', ' ')} preset deactivated`);
+            return;
+        }
+
+        // Apply new preset
+        console.log('✅ BarrierFreeWeb: Applying preset:', presetName);
+
         // Update font settings
         fontSize.value = config.fontSize;
         lineHeight.value = config.lineHeight;
@@ -441,12 +485,14 @@ function createFloatingAccessWidget() {
         } else {
             // Reset to none
             document.querySelector(`input[name="ba-contrast-mode"][value="none"]`).checked = true;
-            clearAllContrastEffects();
+            applyContrastFromRadio('none');
         }
 
-        // Visual feedback
+        // Visual feedback - update preset button styling
         document.querySelectorAll('.ba-preset-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelector(`[data-preset="${presetName}"]`).classList.add('active');
+
+        activePreset = presetName;
 
         // Announce to screen readers
         announceToScreenReader(`${presetName.replace('-', ' ')} preset applied`);
@@ -480,11 +526,28 @@ function createFloatingAccessWidget() {
                     background-color: #1a1a1a !important;
                     color: #e0e0e0 !important;
                 }
-                body * {
-                    background-color: inherit;
-                    color: inherit;
+                body p, body span, body div, body h1, body h2, body h3, body h4, body h5, body h6, 
+                body li, body td, body th, body label, body button, body input, body textarea, body select,
+                body a, body article, body section, body nav, body header, body footer {
+                    background-color: transparent !important;
+                    color: #e0e0e0 !important;
                 }
                 a { color: #64b5f6 !important; }
+                input, textarea, select {
+                    background-color: #2a2a2a !important;
+                    color: #e0e0e0 !important;
+                    border-color: #444 !important;
+                }
+                button {
+                    background-color: #2a2a2a !important;
+                    color: #e0e0e0 !important;
+                    border-color: #444 !important;
+                }
+                /* Exclude widget from theme */
+                #ba-access-widget, #ba-widget-panel, #ba-widget-panel * {
+                    background-color: initial !important;
+                    color: initial !important;
+                }
             `;
             document.head.appendChild(themeStyles);
         }
@@ -611,6 +674,7 @@ function createFloatingAccessWidget() {
         applyTextSettings({ reset: true });
         document.querySelectorAll('.ba-preset-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelector('input[name="ba-contrast-mode"][value="none"]').checked = true;
+        activePreset = null;
         applyTheme('light');
         document.getElementById('ba-dialog-overlay').classList.add('ba-dialog-hidden');
         announceToScreenReader('All settings have been reset');
