@@ -15,6 +15,7 @@
     z-index: 999999;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     pointer-events: auto;
+    user-select: none;
 }
 
 .bfw-widget {
@@ -34,7 +35,7 @@
     border: 2px solid white;
     color: white;
     font-size: 24px;
-    cursor: pointer;
+    cursor: grab;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -44,6 +45,10 @@
     pointer-events: auto;
     -webkit-user-select: none;
     user-select: none;
+}
+
+.bfw-widget-button.bfw-dragging {
+    cursor: grabbing;
 }
 
 .bfw-icon {
@@ -81,11 +86,10 @@
     overflow: hidden;
     min-width: 280px;
     animation: slideUp 0.3s ease;
-    position: absolute;
-    bottom: 70px;
-    right: 0;
+    position: fixed;
     pointer-events: auto;
     display: block;
+    z-index: 999998;
 }
 
 .bfw-widget-panel[hidden] {

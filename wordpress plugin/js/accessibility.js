@@ -126,13 +126,13 @@
                             </div>
                         </div>
 
-                        <!-- Theme Section (Expanded) -->
-                        <div class="bfw-group" data-section="theme">
-                            <button type="button" class="bfw-group-toggle" aria-expanded="true" aria-label="Theme">
+                        <!-- Theme Section (Collapsed) -->
+                        <div class="bfw-group bfw-group-collapsed" data-section="theme">
+                            <button type="button" class="bfw-group-toggle" aria-expanded="false" aria-label="Theme">
                                 <span class="bfw-group-title">Theme</span>
-                                <span class="bfw-group-indicator">−</span>
+                                <span class="bfw-group-indicator">+</span>
                             </button>
-                            <div class="bfw-group-content">
+                            <div class="bfw-group-content" style="display: none;">
                                 <div style="display: flex; gap: 8px;">
                                     <button class="bfw-theme-btn ${settings.theme === 'light' ? 'active' : ''}" data-theme="light">☀️ Light</button>
                                     <button class="bfw-theme-btn ${settings.theme === 'dark' ? 'active' : ''}" data-theme="dark">🌙 Dark</button>
@@ -140,13 +140,13 @@
                             </div>
                         </div>
 
-                        <!-- Text Dimensions Section (Expanded) -->
-                        <div class="bfw-group" data-section="text-dimensions">
-                            <button type="button" class="bfw-group-toggle" aria-expanded="true" aria-label="Text Dimensions">
+                        <!-- Text Dimensions Section (Collapsed) -->
+                        <div class="bfw-group bfw-group-collapsed" data-section="text-dimensions">
+                            <button type="button" class="bfw-group-toggle" aria-expanded="false" aria-label="Text Dimensions">
                                 <span class="bfw-group-title">Text Dimensions</span>
-                                <span class="bfw-group-indicator">−</span>
+                                <span class="bfw-group-indicator">+</span>
                             </button>
-                            <div class="bfw-group-content">
+                            <div class="bfw-group-content" style="display: none;">
                                 <div class="bfw-control-group">
                                     <label for="bfw-font-size">Font Size: <strong><span id="bfw-font-size-value">${settings.fontSize}</span>px</strong></label>
                                     <input type="range" id="bfw-font-size" min="12" max="28" value="${settings.fontSize}">
@@ -320,6 +320,72 @@
         const presetBtns = document.querySelectorAll('.bfw-preset-btn');
         const themeBtns = document.querySelectorAll('.bfw-theme-btn');
 
+        // Function to reposition panel so it's always visible on screen
+        function repositionPanel() {
+            if (panel.hidden) return;
+            
+            const containerRect = container.getBoundingClientRect();
+            const panelWidth = panel.offsetWidth || 300;
+            const panelHeight = panel.offsetHeight || 400;
+            const buttonHeight = toggleBtn.offsetHeight || 50;
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            
+            // Try positions: below, above, left-below, left-above
+            const positions = [
+                { 
+                    left: containerRect.right - panelWidth, 
+                    top: containerRect.bottom + 10 
+                },
+                { 
+                    left: containerRect.right - panelWidth, 
+                    top: containerRect.top - panelHeight - 10 
+                },
+                { 
+                    left: containerRect.left, 
+                    top: containerRect.bottom + 10 
+                },
+                { 
+                    left: containerRect.left, 
+                    top: containerRect.top - panelHeight - 10 
+                }
+            ];
+            
+            let bestPosition = positions[0];
+            let bestScore = Infinity;
+            
+            for (const pos of positions) {
+                const panelRight = pos.left + panelWidth;
+                const panelBottom = pos.top + panelHeight;
+                
+                const offLeft = Math.max(0, -pos.left);
+                const offRight = Math.max(0, panelRight - viewportWidth);
+                const offTop = Math.max(0, -pos.top);
+                const offBottom = Math.max(0, panelBottom - viewportHeight);
+                
+                const overflow = offLeft + offRight + offTop + offBottom;
+                
+                if (overflow === 0) {
+                    bestPosition = pos;
+                    break;
+                }
+                
+                if (overflow < bestScore) {
+                    bestScore = overflow;
+                    bestPosition = pos;
+                }
+            }
+            
+            const finalLeft = Math.max(0, Math.min(bestPosition.left, viewportWidth - panelWidth));
+            const finalTop = Math.max(0, Math.min(bestPosition.top, viewportHeight - panelHeight));
+            
+            panel.style.position = 'fixed';
+            panel.style.left = finalLeft + 'px';
+            panel.style.top = finalTop + 'px';
+            panel.style.bottom = 'auto';
+            panel.style.right = 'auto';
+        }
+
         // Toggle panel
         toggleBtn.addEventListener('click', () => {
             console.log('BarrierFreeWeb: Toggle button clicked, panel hidden state:', panel.hidden);
@@ -329,6 +395,12 @@
                 panel.removeAttribute('hidden');
                 panel.setAttribute('aria-hidden', 'false');
                 toggleBtn.setAttribute('aria-expanded', 'true');
+                
+                // Reposition panel to be visible on screen
+                setTimeout(() => {
+                    repositionPanel();
+                }, 0);
+                
                 console.log('✅ BarrierFreeWeb: Panel shown');
             } else {
                 // Hide panel
@@ -347,6 +419,77 @@
             toggleBtn.focus();
             console.log('✅ BarrierFreeWeb: Panel closed via close button');
         });
+
+        // Drag functionality for the widget
+        const container = document.getElementById('bfw-widget-container');
+        if (container) {
+            let isDragging = false;
+            let hasDragged = false;
+            let dragOffsetX = 0;
+            let dragOffsetY = 0;
+
+            toggleBtn.addEventListener('mousedown', (event) => {
+                if (event.button !== 0) return;
+                isDragging = true;
+                hasDragged = false;
+                toggleBtn.classList.add('bfw-dragging');
+                
+                const rect = container.getBoundingClientRect();
+                dragOffsetX = event.clientX - rect.left;
+                dragOffsetY = event.clientY - rect.top;
+                event.preventDefault();
+            });
+
+            document.addEventListener('mousemove', (event) => {
+                if (!isDragging) return;
+                hasDragged = true;
+                
+                const x = event.clientX - dragOffsetX;
+                const y = event.clientY - dragOffsetY;
+                
+                // Clamp position to viewport
+                const maxX = window.innerWidth - container.offsetWidth;
+                const maxY = window.innerHeight - container.offsetHeight;
+                const clampedX = Math.max(0, Math.min(x, maxX));
+                const clampedY = Math.max(0, Math.min(y, maxY));
+                
+                container.style.left = clampedX + 'px';
+                container.style.top = clampedY + 'px';
+                container.style.right = 'auto';
+                container.style.bottom = 'auto';
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (!isDragging) return;
+                isDragging = false;
+                toggleBtn.classList.remove('bfw-dragging');
+                
+                // Reposition panel if it's open after dragging
+                if (!panel.hidden) {
+                    setTimeout(() => {
+                        repositionPanel();
+                    }, 0);
+                }
+                
+                setTimeout(() => { hasDragged = false; }, 0);
+            });
+
+            // Prevent panel toggle when just dragging
+            toggleBtn.addEventListener('click', (event) => {
+                if (hasDragged) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+            });
+
+            // Reposition panel on window resize
+            window.addEventListener('resize', () => {
+                if (!panel.hidden) {
+                    repositionPanel();
+                }
+            });
+        }
 
         // Close on Escape
         document.addEventListener('keydown', (e) => {
@@ -434,6 +577,13 @@
                     if (!isExpanded) {
                         lastOpenedSection = sectionName;
                         console.log('✅ BarrierFreeWeb: Opened section:', sectionName);
+                    }
+                    
+                    // Reposition panel after height changes
+                    if (!panel.hidden) {
+                        setTimeout(() => {
+                            repositionPanel();
+                        }, 150);
                     }
                 });
             });
