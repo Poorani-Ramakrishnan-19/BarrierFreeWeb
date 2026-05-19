@@ -15,12 +15,13 @@ A powerful Chrome extension that enhances website accessibility with customizabl
 ## ✨ Features
 
 - **Quick Presets**: 👁 Low Vision, 🌙 Dark Mode, 🧠 Dyslexia-friendly, 👵 Large Text
-- **Text Controls**: Font size, letter spacing, line height customization
-- **Highlighting Features**: 🔗 Highlight Links, ✏️ Highlight Selection, 🎨 Color Picker, 🗑️ Clear Highlights
-- **Visual Effects**: High contrast, link highlighting, font options
-- **Theme Options**: Multiple color schemes and themes
-- **Accessibility**: Full keyboard navigation support
-- **Settings Persistence**: Your preferences are saved automatically
+- **Theme Options**: ☀️ Light and 🌙 Dark themes
+- **Text Dimensions**: Font size (12-40px), line height (1-3), letter spacing (0-5px)
+- **Typography**: Font family (6 options) and cursor size (3 options)
+- **Highlighting**: 🔗 Highlight Links, ✏️ Highlight Selection, 🎨 Color Picker, 🗑️ Clear Highlights
+- **Contrast Modes**: None, 🔄 Invert, 🌙 Dark, ☀️ Light, ⚡ High, ⚪ Desaturate
+- **Accessibility**: Full keyboard navigation, screen reader support, ARIA labels
+- **Reset Options**: Reset Section (current only), Reset All (with confirmation)
 
 ## 🆕 Recent Updates
 
@@ -64,6 +65,12 @@ See [DEVELOPER.md](DEVELOPER.md) for:
 
 MIT License - Feel free to use, modify, and distribute
 
-## 💬 Support
+## � Author
+
+**Poorani Ramakrishnan**
+- GitHub: [@PooraniRamakrishnan](https://github.com/PooraniRamakrishnan)
+- Project: BarrierFreeWeb - Making the web accessible for everyone
+
+## �💬 Support
 
 For issues, questions, or suggestions, please open an issue on GitHub.
