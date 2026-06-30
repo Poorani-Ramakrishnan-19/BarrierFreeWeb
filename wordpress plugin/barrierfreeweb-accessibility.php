@@ -49,23 +49,32 @@ class BarrierFreeWeb_Accessibility_Plugin {
         
         // Get the absolute path to the plugin directory
         $plugin_dir = plugin_dir_url(__FILE__);
+        $plugin_file_path = plugin_dir_path(__FILE__);
+        
+        // Use file modification time for cache busting (ensures fresh CSS loads)
+        $css_file = $plugin_file_path . 'css/accessibility.css';
+        $css_version = file_exists($css_file) ? filemtime($css_file) : $this->plugin_version;
         
         // Register and enqueue stylesheet
         wp_register_style(
             $this->plugin_slug . '-style',
             $plugin_dir . 'css/accessibility.css',
             array(),
-            $this->plugin_version,
+            $css_version,
             'all'
         );
         wp_enqueue_style($this->plugin_slug . '-style');
+        
+        // Use file modification time for JS as well
+        $js_file = $plugin_file_path . 'js/accessibility.js';
+        $js_version = file_exists($js_file) ? filemtime($js_file) : $this->plugin_version;
         
         // Register and enqueue script
         wp_register_script(
             $this->plugin_slug . '-script',
             $plugin_dir . 'js/accessibility.js',
             array(),
-            $this->plugin_version,
+            $js_version,
             true // Load in footer
         );
         wp_enqueue_script($this->plugin_slug . '-script');

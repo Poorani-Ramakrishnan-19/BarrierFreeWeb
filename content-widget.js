@@ -359,8 +359,15 @@ function createFloatingAccessWidget() {
     // Track the last opened section for Reset Section button
     let lastOpenedSection = null;
 
-    // Track active preset for toggle functionality
+    // Track active preset and backup settings before applying preset
     let activePreset = null;
+    let presetBackup = null;
+    let manuallyChanged = {
+        fontSize: false,
+        lineHeight: false,
+        spacing: false,
+        fontFamily: false
+    };
 
     panel.querySelectorAll('.ba-group-toggle').forEach((toggle) => {
         toggle.addEventListener('click', () => {
@@ -409,7 +416,8 @@ function createFloatingAccessWidget() {
             lineHeight: 1.6,
             spacing: 0,
             fontFamily: '',
-            contrast: 'none'
+            contrast: 'none',
+            theme: 'dark'
         },
         'dyslexia': {
             fontSize: 18,
@@ -436,29 +444,69 @@ function createFloatingAccessWidget() {
         if (activePreset === presetName) {
             console.log('🔄 BarrierFreeWeb: Deactivating preset:', presetName);
             
-            // Reset to defaults
-            const defaults = {
-                fontSize: 16,
-                lineHeight: 1.5,
-                spacing: 0,
-                fontFamily: '',
-                contrast: 'none'
-            };
-
-            fontSize.value = defaults.fontSize;
-            lineHeight.value = defaults.lineHeight;
-            spacing.value = defaults.spacing;
-            fontFamily.value = defaults.fontFamily;
+            // Restore all settings that were active BEFORE the preset
+            if (presetBackup) {
+                fontSize.value = presetBackup.fontSize;
+                lineHeight.value = presetBackup.lineHeight;
+                spacing.value = presetBackup.spacing;
+                fontFamily.value = presetBackup.fontFamily;
+                fontFamily.dispatchEvent(new Event('change'));
+                
+                // Restore contrast mode
+                const contrastRadio = document.querySelector(`input[name="ba-contrast-mode"][value="${presetBackup.contrast}"]`);
+                if (contrastRadio) {
+                    contrastRadio.checked = true;
+                    applyContrastFromRadio(presetBackup.contrast);
+                }
+                
+                // Restore theme
+                if (presetBackup.theme) {
+                    document.querySelectorAll('.ba-theme-btn').forEach(btn => {
+                        const isActive = btn.id === `ba-theme-${presetBackup.theme}`;
+                        btn.classList.toggle('active', isActive);
+                        btn.setAttribute('aria-pressed', isActive);
+                    });
+                    applyTheme(presetBackup.theme);
+                }
+            } else {
+                // Fallback to defaults if backup is missing
+                fontSize.value = 16;
+                lineHeight.value = 1.5;
+                spacing.value = 0;
+                fontFamily.value = '';
+                fontFamily.dispatchEvent(new Event('change'));
+                
+                // Restore to no contrast
+                const noneRadio = document.querySelector('input[name="ba-contrast-mode"][value="none"]');
+                if (noneRadio) {
+                    noneRadio.checked = true;
+                    applyContrastFromRadio('none');
+                }
+                
+                // Restore to light theme
+                document.querySelectorAll('.ba-theme-btn').forEach(btn => {
+                    const isLight = btn.id === 'ba-theme-light';
+                    btn.classList.toggle('active', isLight);
+                    btn.setAttribute('aria-pressed', isLight);
+                });
+                applyTheme('light');
+            }
             
-            // Reset to none contrast
-            document.querySelector(`input[name="ba-contrast-mode"][value="none"]`).checked = true;
-            applyContrastFromRadio('none');
+            // Apply settings
+            applyWidgetSettings();
 
             // Remove active button styling
             document.querySelectorAll('.ba-preset-btn').forEach(btn => btn.classList.remove('active'));
             
             activePreset = null;
-            applyWidgetSettings();
+            presetBackup = null;
+            // Reset manually changed flags
+            manuallyChanged = {
+                fontSize: false,
+                lineHeight: false,
+                spacing: false,
+                fontFamily: false
+            };
             announceToScreenReader(`${presetName.replace('-', ' ')} preset deactivated`);
             return;
         }
@@ -466,33 +514,78 @@ function createFloatingAccessWidget() {
         // Apply new preset
         console.log('✅ BarrierFreeWeb: Applying preset:', presetName);
 
-        // Update font settings
-        fontSize.value = config.fontSize;
-        lineHeight.value = config.lineHeight;
-        spacing.value = config.spacing;
-        fontFamily.value = config.fontFamily;
+        // Backup current settings BEFORE applying preset (including contrast mode and theme)
+        const currentContrastRadio = document.querySelector('input[name="ba-contrast-mode"]:checked');
+        const activeThemeBtn = document.querySelector('.ba-theme-btn.active');
+        presetBackup = {
+            fontSize: parseInt(fontSize.value),
+            lineHeight: parseFloat(lineHeight.value),
+            spacing: parseFloat(spacing.value),
+            fontFamily: fontFamily.value,
+            contrast: currentContrastRadio ? currentContrastRadio.value : 'none',
+            theme: activeThemeBtn ? activeThemeBtn.id.replace('ba-theme-', '') : 'light'
+        };
+
+        // Only apply preset values to fields that haven't been manually changed
+        // If a field was manually changed, preserve the current value
+        if (!manuallyChanged.fontSize) {
+            fontSize.value = config.fontSize;
+        }
+        if (!manuallyChanged.lineHeight) {
+            lineHeight.value = config.lineHeight;
+        }
+        if (!manuallyChanged.spacing) {
+            spacing.value = config.spacing;
+        }
+        if (!manuallyChanged.fontFamily) {
+            fontFamily.value = config.fontFamily;
+        }
         
         // Apply settings
         applyWidgetSettings();
 
-        // Apply contrast if needed
+        // Trigger font family change listener if font was set
+        if (config.fontFamily) {
+            fontFamily.dispatchEvent(new Event('change'));
+        }
+
+        // Apply contrast ONLY if preset explicitly specifies it
         if (config.contrast && config.contrast !== 'none') {
             const radioButton = document.querySelector(`input[name="ba-contrast-mode"][value="${config.contrast}"]`);
             if (radioButton) {
                 radioButton.checked = true;
                 applyContrastFromRadio(config.contrast);
             }
-        } else {
-            // Reset to none
+        } else if (config.contrast === 'none') {
+            // Only set to none if preset explicitly defines it
             document.querySelector(`input[name="ba-contrast-mode"][value="none"]`).checked = true;
             applyContrastFromRadio('none');
         }
+        // If preset doesn't specify contrast, leave current contrast mode as is
+
+        // Apply theme ONLY if preset explicitly specifies it
+        if (config.theme) {
+            document.querySelectorAll('.ba-theme-btn').forEach(btn => {
+                const isActive = btn.id === `ba-theme-${config.theme}`;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-pressed', isActive);
+            });
+            applyTheme(config.theme);
+        }
+        // If preset doesn't specify theme, leave current theme as is
 
         // Visual feedback - update preset button styling
         document.querySelectorAll('.ba-preset-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelector(`[data-preset="${presetName}"]`).classList.add('active');
 
         activePreset = presetName;
+        // Reset manually changed flags for the new preset
+        manuallyChanged = {
+            fontSize: false,
+            lineHeight: false,
+            spacing: false,
+            fontFamily: false
+        };
 
         // Announce to screen readers
         announceToScreenReader(`${presetName.replace('-', ' ')} preset applied`);
@@ -526,25 +619,18 @@ function createFloatingAccessWidget() {
                     background-color: #1a1a1a !important;
                     color: #e0e0e0 !important;
                 }
-                body p, body span, body div, body h1, body h2, body h3, body h4, body h5, body h6, 
-                body li, body td, body th, body label, body button, body input, body textarea, body select,
-                body a, body article, body section, body nav, body header, body footer {
+                * {
                     background-color: transparent !important;
                     color: #e0e0e0 !important;
                 }
                 a { color: #64b5f6 !important; }
-                input, textarea, select {
-                    background-color: #2a2a2a !important;
-                    color: #e0e0e0 !important;
-                    border-color: #444 !important;
-                }
-                button {
+                button, input, textarea, select {
                     background-color: #2a2a2a !important;
                     color: #e0e0e0 !important;
                     border-color: #444 !important;
                 }
                 /* Exclude widget from theme */
-                #ba-access-widget, #ba-widget-panel, #ba-widget-panel * {
+                #ba-access-widget, #ba-access-widget *, #ba-widget-panel, #ba-widget-panel * {
                     background-color: initial !important;
                     color: initial !important;
                 }
@@ -601,21 +687,296 @@ function createFloatingAccessWidget() {
         spacingValue.textContent = spacing.value;
     }
 
+    /**
+     * Apply text styling to the page with !important flags to override existing CSS
+     * Widget panel is excluded from these changes
+     */
+    function applyTextSettings(settings) {
+        // Create or update the text settings style tag
+        let textSettingsStyle = document.getElementById('ba-text-settings-style');
+        if (!textSettingsStyle) {
+            textSettingsStyle = document.createElement('style');
+            textSettingsStyle.id = 'ba-text-settings-style';
+            document.head.appendChild(textSettingsStyle);
+            console.log('✅ BFW: Created ba-text-settings-style tag');
+        }
+
+        if (settings && settings.reset) {
+            textSettingsStyle.textContent = '';
+            console.log('✅ BFW: Reset text settings CSS');
+            return;
+        }
+
+        // Use settings or get from form values
+        const fontSize = settings?.fontSize || parseFloat(document.getElementById('ba-fontSize').value);
+        const lineHeight = settings?.lineHeight || document.getElementById('ba-lineHeight').value;
+        const spacing = settings?.spacing || parseFloat(document.getElementById('ba-spacing').value);
+        const fontFamily = settings?.fontFamily || document.getElementById('ba-fontFamily').value;
+        const cursorSize = settings?.cursorSize || document.getElementById('ba-cursorSize').value;
+
+        console.log('🎨 BFW: applyTextSettings - fontSize:', fontSize, 'lineHeight:', lineHeight, 'spacing:', spacing, 'fontFamily:', fontFamily);
+
+        let cssRules = `
+            @import url('https://fonts.googleapis.com/css2?family=Open+Dyslexic:wght@400;700&display=swap');
+            
+            /* Apply to all elements with high specificity */
+            * {
+                font-size: ${fontSize}px !important;
+                line-height: ${lineHeight} !important;
+                letter-spacing: ${spacing}px !important;
+            }
+            
+            html {
+                font-size: ${fontSize}px !important;
+            }
+            
+            /* Exclude widget panel from text settings - triple specificity */
+            body #ba-access-widget,
+            body #ba-access-widget *,
+            body #ba-widget-panel,
+            body #ba-widget-panel * {
+                font-size: initial !important;
+                line-height: initial !important;
+                letter-spacing: initial !important;
+            }
+            
+            /* Exclude header and navigation elements from font size changes */
+            header,
+            header *,
+            nav,
+            nav *,
+            .navbar,
+            .navbar *,
+            .site-header,
+            .site-header *,
+            .header,
+            .header *,
+            .navigation,
+            .navigation *,
+            .menu,
+            .menu *,
+            [role="navigation"],
+            [role="navigation"] * {
+                font-size: initial !important;
+                line-height: initial !important;
+                letter-spacing: initial !important;
+            }
+        `;
+
+        if (fontFamily) {
+            cssRules += `
+                /* Apply font family to all elements */
+                * {
+                    font-family: ${fontFamily} !important;
+                }
+                
+                /* Exclude widget panel from font family changes - triple specificity */
+                body #ba-access-widget,
+                body #ba-access-widget *,
+                body #ba-widget-panel,
+                body #ba-widget-panel * {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+                }
+                
+                /* Exclude header and navigation from font family changes */
+                header,
+                header *,
+                nav,
+                nav *,
+                .navbar,
+                .navbar *,
+                .site-header,
+                .site-header *,
+                .header,
+                .header *,
+                .navigation,
+                .navigation *,
+                .menu,
+                .menu *,
+                [role="navigation"],
+                [role="navigation"] * {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+                }
+            `;
+        }
+
+        // Apply cursor size
+        if (cursorSize && cursorSize !== 'default') {
+            const cursorUrl = chrome.runtime.getURL(`images/${cursorSize}-cursor.svg`);
+            let cursorCSS = ``;
+            if (cursorSize === 'large') {
+                cursorCSS = `
+                    body { cursor: url('${cursorUrl}') 12 12, auto !important; }
+                `;
+            } else if (cursorSize === 'xlarge') {
+                cursorCSS = `
+                    body { cursor: url('${cursorUrl}') 16 16, auto !important; }
+                `;
+            }
+            cssRules += cursorCSS;
+        }
+
+        textSettingsStyle.textContent = cssRules;
+        console.log('✅ BFW: Text settings CSS applied to page');
+    }
+
+    /**
+     * Clear contrast effects from the page
+     */
+    function clearAllContrastEffects() {
+        const contrastStyle = document.getElementById('ba-contrast-style');
+        if (contrastStyle) {
+            contrastStyle.remove();
+        }
+    }
+
+    /**
+     * Clear cursor size
+     */
+    function clearCursorSize() {
+        // This is handled by applyTextSettings
+    }
+
+    /**
+     * Apply contrast effect
+     */
+    function applyContrastEffect(mode, shouldApply) {
+        let contrastStyle = document.getElementById('ba-contrast-style');
+        if (!contrastStyle) {
+            contrastStyle = document.createElement('style');
+            contrastStyle.id = 'ba-contrast-style';
+            document.head.appendChild(contrastStyle);
+        }
+
+        if (!shouldApply) {
+            contrastStyle.remove();
+            return;
+        }
+
+        let css = '';
+        const widgetExclusion = `
+            /* Exclude widget panel from contrast effects */
+            #ba-access-widget,
+            #ba-access-widget *,
+            #ba-widget-panel,
+            #ba-widget-panel * {
+                filter: none !important;
+                background-color: initial !important;
+                color: initial !important;
+            }
+        `;
+
+        switch(mode) {
+            case 'invert':
+                css = `
+                    * { filter: invert(1) !important; }
+                    ${widgetExclusion}
+                `;
+                break;
+            case 'dark':
+                css = `
+                    * {
+                        background-color: transparent !important;
+                        color: #e0e0e0 !important;
+                    }
+                    body {
+                        background-color: #1a1a1a !important;
+                    }
+                    a { color: #64b5f6 !important; }
+                    ${widgetExclusion}
+                `;
+                break;
+            case 'light':
+                css = `
+                    * {
+                        background-color: transparent !important;
+                        color: #000000 !important;
+                    }
+                    body {
+                        background-color: #f5f5f5 !important;
+                    }
+                    a { color: #0066cc !important; }
+                    ${widgetExclusion}
+                `;
+                break;
+            case 'high':
+                css = `
+                    * {
+                        background-color: transparent !important;
+                        color: #ffffff !important;
+                        border-color: #ffffff !important;
+                    }
+                    body {
+                        background-color: #000000 !important;
+                    }
+                    a { color: #ffff00 !important; }
+                    button, input, select, textarea {
+                        border: 2px solid #ffffff !important;
+                        background-color: #1a1a1a !important;
+                    }
+                    ${widgetExclusion}
+                `;
+                break;
+            case 'desaturate':
+                css = `
+                    * { filter: saturate(0) !important; }
+                    ${widgetExclusion}
+                `;
+                break;
+        }
+        contrastStyle.textContent = css;
+    }
+
+    function updateValues() {
+        const fontSize = parseInt(document.getElementById('ba-fontSize').value);
+        fontSizeLabel.textContent = getFontSizeLabel(fontSize);
+        lineHeightValue.textContent = lineHeight.value;
+        spacingValue.textContent = spacing.value;
+    }
+
     function applyWidgetSettings() {
+        console.log('🔧 BFW: applyWidgetSettings called');
         updateValues();
-        applyTextSettings({
+        const settings = {
             fontSize: parseFloat(fontSize.value),
             lineHeight: lineHeight.value,
             spacing: parseFloat(spacing.value),
             fontFamily: fontFamily.value,
             cursorSize: cursorSize.value,
-        });
+        };
+        console.log('🔧 BFW: Applying settings:', settings);
+        applyTextSettings(settings);
     }
 
-    fontSize.addEventListener('input', applyWidgetSettings);
-    lineHeight.addEventListener('input', applyWidgetSettings);
-    spacing.addEventListener('input', applyWidgetSettings);
-    fontFamily.addEventListener('change', applyWidgetSettings);
+    // Track manual changes to text dimensions while preset is active
+    fontSize.addEventListener('input', () => {
+        applyWidgetSettings();
+        // Mark as manually changed if a preset is active
+        if (activePreset) {
+            manuallyChanged.fontSize = true;
+        }
+    });
+    lineHeight.addEventListener('input', () => {
+        applyWidgetSettings();
+        // Mark as manually changed if a preset is active
+        if (activePreset) {
+            manuallyChanged.lineHeight = true;
+        }
+    });
+    spacing.addEventListener('input', () => {
+        applyWidgetSettings();
+        // Mark as manually changed if a preset is active
+        if (activePreset) {
+            manuallyChanged.spacing = true;
+        }
+    });
+    fontFamily.addEventListener('change', () => {
+        applyWidgetSettings();
+        // Mark as manually changed if a preset is active
+        if (activePreset) {
+            manuallyChanged.fontFamily = true;
+        }
+    });
     cursorSize.addEventListener('change', applyWidgetSettings);
 
     // Preset buttons
@@ -628,10 +989,43 @@ function createFloatingAccessWidget() {
 
     // Theme buttons
     document.getElementById('ba-theme-light').addEventListener('click', () => {
+        const isCurrentlyLight = document.getElementById('ba-theme-light').getAttribute('aria-pressed') === 'true';
+        if (isCurrentlyLight) {
+            // Already light, do nothing
+            return;
+        }
         applyTheme('light');
+        
+        // Deactivate any preset since theme was manually changed
+        if (activePreset) {
+            document.querySelectorAll('.ba-preset-btn').forEach(b => b.classList.remove('active'));
+            activePreset = null;
+            presetBackup = null;
+        }
     });
     document.getElementById('ba-theme-dark').addEventListener('click', () => {
-        applyTheme('dark');
+        const isCurrentlyDark = document.getElementById('ba-theme-dark').getAttribute('aria-pressed') === 'true';
+        if (isCurrentlyDark) {
+            // Toggle off: revert to light theme
+            applyTheme('light');
+            
+            // Deactivate Dark Mode preset if it's active
+            if (activePreset === 'dark-mode') {
+                document.querySelectorAll('.ba-preset-btn').forEach(b => b.classList.remove('active'));
+                activePreset = null;
+                presetBackup = null;
+            }
+        } else {
+            // Toggle on: apply dark theme
+            applyTheme('dark');
+            
+            // Deactivate any other preset since theme was manually changed
+            if (activePreset) {
+                document.querySelectorAll('.ba-preset-btn').forEach(b => b.classList.remove('active'));
+                activePreset = null;
+                presetBackup = null;
+            }
+        }
     });
 
     // Contrast radio buttons
@@ -640,6 +1034,110 @@ function createFloatingAccessWidget() {
             applyContrastFromRadio(e.target.value);
         });
     });
+
+    /**
+     * Reset a specific section to defaults
+     */
+    function resetSection(section) {
+        switch(section) {
+            case 'text-dimensions':
+                fontSize.value = 16;
+                lineHeight.value = 1.5;
+                spacing.value = 0;
+                updateValues();
+                applyWidgetSettings();
+                break;
+            case 'typography':
+                fontFamily.value = '';
+                fontFamily.dispatchEvent(new Event('change'));
+                break;
+            case 'highlight':
+                clearAllHighlights();
+                highlightColor.value = '#fff176';
+                break;
+            case 'contrast':
+                clearAllContrastEffects();
+                document.querySelector('input[name="ba-contrast-mode"][value="none"]').checked = true;
+                break;
+            case 'presets':
+                activePreset = null;
+                document.querySelectorAll('.ba-preset-btn').forEach(btn => btn.classList.remove('active'));
+                break;
+        }
+    }
+
+    /**
+     * Clear all highlights from the page
+     */
+    function clearAllHighlights() {
+        document.querySelectorAll('.ba-highlighted').forEach(el => {
+            const styles = el.getAttribute('data-original-style');
+            if (styles) {
+                el.setAttribute('style', styles);
+            } else {
+                el.removeAttribute('style');
+            }
+            el.classList.remove('ba-highlighted');
+            el.removeAttribute('data-original-style');
+        });
+    }
+
+    /**
+     * Highlight selected text on the page
+     */
+    function highlightSelection(color) {
+        const selection = window.getSelection();
+        if (!selection.toString()) {
+            announceToScreenReader('No text selected. Please select text to highlight.');
+            return;
+        }
+
+        const range = selection.getRangeAt(0);
+        const span = document.createElement('span');
+        span.className = 'ba-highlighted';
+        span.style.backgroundColor = color;
+        span.style.color = 'inherit';
+        
+        try {
+            range.surroundContents(span);
+        } catch (e) {
+            // If surroundContents fails, use insertNode as fallback
+            const fragment = range.extractContents();
+            span.appendChild(fragment);
+            range.insertNode(span);
+        }
+
+        selection.removeAllRanges();
+        announceToScreenReader('Text highlighted with color ' + color);
+    }
+
+    /**
+     * Toggle highlighting of all links on the page
+     */
+    function toggleLinkHighlights(color) {
+        const links = document.querySelectorAll('a');
+        let isHighlighting = false;
+
+        links.forEach(link => {
+            if (link.classList.contains('ba-highlighted')) {
+                const styles = link.getAttribute('data-original-style');
+                if (styles) {
+                    link.setAttribute('style', styles);
+                } else {
+                    link.removeAttribute('style');
+                }
+                link.classList.remove('ba-highlighted');
+                link.removeAttribute('data-original-style');
+            } else {
+                link.setAttribute('data-original-style', link.getAttribute('style') || '');
+                link.style.backgroundColor = color;
+                link.classList.add('ba-highlighted');
+                isHighlighting = true;
+            }
+        });
+
+        return isHighlighting;
+    }
 
     // Reset section button
     document.getElementById('ba-reset-section').addEventListener('click', () => {
@@ -671,11 +1169,58 @@ function createFloatingAccessWidget() {
         highlightColor.value = '#fff176';
         updateValues();
         fontFamily.dispatchEvent(new Event('change'));
-        applyTextSettings({ reset: true });
+        clearAllContrastEffects();
+        clearCursorSize();
+        clearAllHighlights();
         document.querySelectorAll('.ba-preset-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelector('input[name="ba-contrast-mode"][value="none"]').checked = true;
         activePreset = null;
+        presetBackup = null;
+        // Reset manually changed flags
+        manuallyChanged = {
+            fontSize: false,
+            lineHeight: false,
+            spacing: false,
+            fontFamily: false
+        };
         applyTheme('light');
+        
+        // Collapse all sections except Quick Presets
+        document.querySelectorAll('.ba-group').forEach(group => {
+            const section = group.getAttribute('data-section');
+            const toggle = group.querySelector('.ba-group-toggle');
+            const indicator = toggle ? toggle.querySelector('.ba-group-indicator') : null;
+            
+            if (section === 'presets') {
+                // Keep Quick Presets expanded
+                group.classList.remove('collapsed');
+                toggle.setAttribute('aria-expanded', 'true');
+                if (indicator) indicator.textContent = '-';
+            } else {
+                // Collapse all other sections
+                group.classList.add('collapsed');
+                toggle.setAttribute('aria-expanded', 'false');
+                if (indicator) indicator.textContent = '+';
+            }
+        });
+        
+        // Reset icon position to default (bottom-right)
+        icon.style.left = 'auto';
+        icon.style.top = 'auto';
+        icon.style.right = '20px';
+        icon.style.bottom = '20px';
+        panel.style.left = 'auto';
+        panel.style.top = 'auto';
+        panel.style.right = 'auto';
+        panel.style.bottom = 'auto';
+        
+        // Re-run positioning logic so the panel remains on-screen
+        if (typeof updateWidgetPosition === 'function' && icon) {
+            const defaultX = window.innerWidth - 70; // icon width ~50px + 20px margin
+            const defaultY = window.innerHeight - 70; // icon height ~50px + 20px margin
+            updateWidgetPosition(defaultX, defaultY);
+        }
+        
         document.getElementById('ba-dialog-overlay').classList.add('ba-dialog-hidden');
         announceToScreenReader('All settings have been reset');
     });
